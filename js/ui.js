@@ -212,6 +212,16 @@
       this.menu.hidden = true;
       this.overlay.hidden = true;
       this.hud.hidden = false;
+      // El nombre del nivel aparece destacado y se oculta solo a los ~3 s
+      // (no estorba la visibilidad del marcador/estrellas).
+      const name = document.getElementById('hud-levelname');
+      if (name) {
+        name.classList.remove('hide');
+        clearTimeout(this._nameHideTimer);
+        this._nameHideTimer = setTimeout(() => {
+          if (name) name.classList.add('hide');
+        }, 3000);
+      }
     }
 
     hideHUD() {
@@ -229,10 +239,13 @@
         const locked = i > unlocked;
         const btn = document.createElement('button');
         btn.className = 'level-card' + (locked ? ' locked' : '');
+        // Mejor puntaje de cada nivel (persistido en localStorage)
+        const bestScore = this.engine.getBestScore(i);
         btn.innerHTML = `
           <span class="level-num">${i}</span>
           <span class="level-name">${locked ? '🔒' : this.engine.getLevelName(i)}</span>
           <span class="level-stars-mini">${this._miniStars(best[i] || 0)}</span>
+          <span class="level-best">${bestScore > 0 ? '🏆 ' + bestScore : ''}</span>
         `;
         if (!locked) {
           btn.addEventListener('click', () => {
