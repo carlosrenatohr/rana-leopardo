@@ -101,7 +101,7 @@
         entityType: 'frog',
         shape: new CircleShape(Frog.RADIUS),
         mass: 3,
-        restitution: 0.35,
+        restitution: 0.42, // rebote un poco más vivo al impactar
         friction: 0.3,
         hp: Infinity,
         tags: ['frog', 'player'],
@@ -113,6 +113,7 @@
       this.blinkPhase = 0; // 0 = abierto, >0 parpadeando
       this.facing = 1; // dirección a la que miran los ojos
       this.held = false;
+      this.impactPulse = 0; // squash visible al chocar (0..1)
     }
 
     /** Pequeña sacudida feliz al colocar en la resortera. */
@@ -124,6 +125,7 @@
         this.blinkPhase = 0.22; // duración del parpadeo
       }
       if (this.blinkPhase > 0) this.blinkPhase = Math.max(0, this.blinkPhase - dt);
+      if (this.impactPulse > 0) this.impactPulse = Math.max(0, this.impactPulse - dt * 3.2);
     }
 
     draw(ctx, camera, time) {
@@ -135,8 +137,10 @@
       ctx.translate(c.x, c.y);
       ctx.rotate(this.angle);
 
-      // Sombra interior sutil
-      ctx.scale(1, breathing);
+      // Sombra interior sutil — con squash al recibir impacto para que
+      // el choque se note en la propia rana (no solo en los bloques)
+      const squash = this.impactPulse;
+      ctx.scale(1 + squash * 0.16, breathing * (1 - squash * 0.16));
 
       // Cuerpo — degradado verde rana
       const bodyG = ctx.createRadialGradient(-R * 0.3, -R * 0.35, R * 0.2, 0, 0, R);

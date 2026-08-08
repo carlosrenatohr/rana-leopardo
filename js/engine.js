@@ -41,7 +41,7 @@
     OFF_LEFT: -280, // fuera del mundo por la izquierda
     OFF_RIGHT_PAD: 240, // fuera del mundo por la derecha
     DAMAGE_K: 0.3, // daño = velocidad de impacto * K
-    SETTLE_TIME: 0.55, // segundos en reposo para consumir la rana
+    SETTLE_TIME: 0.35, // segundos en reposo para consumir la rana (reinicio ágil)
     BASE_CLEAR: 500, // puntos por superar el nivel
     FROG_BONUS: 250 // puntos por rana sin usar
   };
@@ -130,6 +130,11 @@
 
     getBestStars() {
       return this.progress.best;
+    }
+
+    /** Mejor puntaje de un nivel (0 si nunca se ganó). */
+    getBestScore(index) {
+      return this.progress.scores[index] || 0;
     }
 
     getLevelName(i) {
@@ -484,6 +489,11 @@
     _onImpact(a, b, speed, manifold) {
       const point = manifold && manifold.contacts[0];
       const frog = this.activeFrog;
+
+      // La rana también "siente" el golpe: pulso squash visible
+      if (frog && (a === frog || b === frog) && speed > 150) {
+        frog.impactPulse = 1;
+      }
 
       // Efectos visuales del impacto
       if (speed > 220) {
