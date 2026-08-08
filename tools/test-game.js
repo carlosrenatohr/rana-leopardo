@@ -30,7 +30,20 @@ function makeEl(tag) {
     textContent: '',
     disabled: false,
     listeners: {},
-    classList: { add() {}, remove() {}, contains: () => false, toggle() {} },
+    classList: {
+      _s: new Set(),
+      add(c) { this._s.add(c); },
+      remove(c) { this._s.delete(c); },
+      contains(c) { return this._s.has(c); },
+      toggle(c, force) {
+        if (force === undefined) {
+          if (this._s.has(c)) { this._s.delete(c); return false; }
+          this._s.add(c); return true;
+        }
+        if (force) this._s.add(c); else this._s.delete(c);
+        return !!force;
+      }
+    },
     appendChild(c) { this.children.push(c); c.parentNode = this; return c; },
     insertBefore(c) { this.children.unshift(c); c.parentNode = this; return c; },
     removeChild(c) { const i = this.children.indexOf(c); if (i >= 0) this.children.splice(i, 1); return c; },
@@ -312,6 +325,25 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
 
   engine.showMenu();
   check('vuelta al menú', engine.state === 'MENU');
+  // El selector de niveles muestra el récord por nivel (persistido).
+  // Nota: el stub del DOM no limpia `children` al reasignar innerHTML,
+  // así que buscamos el récord en cualquier tarjeta (en el navegador real
+  // la rejilla se reconstruye desde cero).
+  const selectEl = document.getElementById('level-select');
+  const cards = (selectEl && selectEl.children) || [];
+  const hasRecord = cards.some((c) => /2500/.test(c.innerHTML || ''));
+  check('selector muestra récord del nivel 1', hasRecord,
+    cards.map((c) => (c.innerHTML || '').match(/🏆 \d+/)).filter(Boolean).join(' | ') || 'sin 🏆');
+  check('getBestScore(1) devuelve el récord', engine.getBestScore(1) === 2500, engine.getBestScore(1));
+  // El nombre del nivel se oculta solo (clase .hide tras el timer)
+  await engine.startLevel(1);
+  const nameEl = document.getElementById('hud-levelname');
+  check('nombre de nivel visible al entrar', nameEl && !nameEl.classList.contains('hide'));
+  // Mostrar que el temporizador de 3 s añade la clase .hide de verdad
+  const preHide = nameEl.classList.contains('hide');
+  await new Promise((r) => setTimeout(r, 3200));
+  check('nombre de nivel se oculta solo a los ~3 s', !preHide && nameEl.classList.contains('hide'),
+    'hide=' + nameEl.classList.contains('hide'));
 
   console.log('\n========================================');
   console.log(`RESULTADO: ${pass} ✓  ${fail} ✗`);
