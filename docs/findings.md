@@ -119,3 +119,67 @@ cubierto por tests en `tools/`.
 - **Causa**: `shutil.make_archive` empaquetaba el directorio completo.
 - **Arreglo**: generar el ZIP con `zipfile` recorriendo el árbol y excluyendo
   `.git`; `.gitignore` excluye `*.zip` del repo.
+
+## 14. Crash al morir un pez globo: `particles.bubble is not a function`
+
+- **Síntoma**: al destruir un pez globo (nivel 2 en adelante) el juego
+  petaba en `Engine._entityDied` con `TypeError` en bucle (cada frame
+  lanzaba de nuevo la excepción desde `requestAnimationFrame`).
+- **Causa**: el motor llamaba `this.particles.bubble(x, y, 1)`, pero
+  `Particles` solo tenía el tipo `BUBBLE` y el método `splash()`; no
+  existía un emisor `bubble()` público.
+- **Arreglo**: añadir `Particles.bubble(x, y, power)` (burbujas ascendentes
+  con gravedad negativa) + regresión en el smoke test (mata un pez globo
+  real en el nivel 2 y verifica que no lance y que emita burbujas).
+
+## 15. Crash al dibujar cristal: `_drawHitFlash is not a function`
+
+- **Síntoma**: al entrar a cualquier nivel con bloques de cristal, bambú o
+  piedra, el render petaba con `TypeError` (la pantalla quedaba negra).
+- **Causa**: `_drawHitFlash` estaba definido **solo en `WoodBlock`**, pero
+  `CrystalBlock`, `BambooBlock` y `StoneBlock` también lo llamaban.
+- **Arreglo**: subir `_drawHitFlash` a la clase base `Block` (todos los
+  bloques la heredan) + regresión en el smoke test que renderiza el nivel 2
+  entero y verifica que no lance.
+
+## 16. La trayectoria de apuntado era invisible
+
+- **Síntoma**: al estirar la resortera no se veía por dónde iba a volar la
+  rana; solo se oía el impacto al chocar.
+- **Causa**: los puntos del preview tenían radio 1–4 px con alfa decreciente
+  y sin contraste sobre arena/mar → imperceptibles en pantalla pequeña.
+- **Arreglo**: puntos grandes con borde oscuro (contraste sobre cualquier
+  fondo), relleno blanco/amarillo pastel y una **rana fantasma** en el punto
+  de aterrizaje previsto. Además se añadió una **estela de vuelo** (posición
+  reciente de la rana cada ~0.03 s) para seguir el disparo en el aire.
+
+## 17. La ★★★ era matemáticamente imposible
+
+- **Síntoma**: "parece imposible lograr 3 estrellas" — y lo era: los
+  umbrales se fijaron cuando había 2–3 ranas y sin recalcular tras subir a 4
+  y añadir el bonus de ranas sin usar.
+- **Causa**: en casi todos los niveles el umbral de 3★ superaba el puntaje
+  máximo alcanzable (destrucción total + 500 de victoria + bonus de ranas).
+- **Arreglo**: recalibrar `stars` en los 6 niveles (JSON + espejos embebidos,
+  sincronía verificada por `tools/check-levels.js`) a valores alcanzables con
+  buen juego: p. ej. nivel 1 [900, 1400, 2000] en vez de [1200, 1800, 2400].
+
+## 18. El best score no persistía
+
+- **Síntoma**: el progreso guardaba estrellas y niveles desbloqueados, pero
+  no el puntaje récord de cada nivel.
+- **Causa**: `progress.best` solo almacenaba estrellas por nivel.
+- **Arreglo**: `progress.scores[nivel]` con el mejor puntaje (solo sube),
+  mostrado en el HUD (chip 🏆) y en la pantalla de victoria ("Récord del
+  nivel" / "¡Nuevo récord!"). Persistido en `localStorage` bajo la misma
+  clave `rana-progress`.
+
+## 19. Los commits tenían el email incorrecto
+
+- **Síntoma**: todos los commits llevaban `carlos@growthoptix.com` en vez
+  del email real.
+- **Causa**: `git config user.email` quedó con un valor viejo al inicializar
+  el repo.
+- **Arreglo**: `git filter-branch --env-filter` reescribió autor y committer
+  de los 24 commits a `carlosrenatohr@gmail.com` (sin remoto, sin colisiones);
+  se purgaron `refs/original` y el reflog.

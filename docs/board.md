@@ -18,14 +18,17 @@
 ## Pendientes (por prioridad)
 
 ### Alta
-- [ ] **Equilibrar umbrales de estrellas** con las 4 ranas actuales (el bonus
-      por ranas sin usar subió a 1000; la ★★★ del nivel 1 ≈ juego perfecto).
+- [x] **Equilibrar umbrales de estrellas** con las 4 ranas actuales (hecho:
+      recalibrados los 6 niveles a valores alcanzables; p. ej. nivel 1
+      [900, 1400, 2000]).
 - [ ] **Mostrar cangris restantes en el HUD** durante la partida (hoy solo
       salen en la pantalla de derrota).
 - [ ] **Nivel 7**: escenario nuevo (arrecife/trampa), 3★ más exigente.
 
 ### Media
 - [ ] **Power-ups**: rana explosiva, coco rebotador, rana de bambú (atravesar).
+- [x] **Best score por nivel** en `localStorage` (hecho: `progress.scores`,
+      chip 🏆 en HUD y "Récord del nivel" en la victoria).
 - [ ] **Tabla de récords local** (top 5 por nivel en `localStorage`).
 - [ ] **Paleta y decoraciones por tema** ya soportadas por nivel (`palette` +
       `decorations`) — explotarlas más en niveles futuros.
@@ -39,6 +42,8 @@
 - [ ] **Rebote de cámara** al volver a la resortera (ahora es instantáneo).
 - [ ] **Editor de niveles** en el navegador (JSON a partir de clics).
 - [ ] Traducción EN/ES del juego.
+- [ ] **Ajuste fino del preview de trayectoria**: probar tamaños/colores de
+      puntos y de la rana fantasma en pantallas reales.
 
 ## Estrategias para darle color y vida
 
