@@ -171,6 +171,7 @@
       this.entities.length = 0;
       this.activeFrog = null;
       this.heldFrog = null;
+      this.trail = [];
       this.particles.clear();
       this.ui.showMenu();
     }
@@ -370,9 +371,11 @@
       const frog = this.activeFrog;
       if (!frog) return;
 
-      // Estela de vuelo: guardar una posición cada ~0.03s (máx. 60)
+      // Estela de vuelo: guardar una posición cada ~0.03s (máx. 60).
+      // Solo mientras la rana vuela: al posarse, no se amontonan puntos
+      // casi idénticos en el punto de aterrizaje.
       this._trailTimer -= dt;
-      if (this._trailTimer <= 0) {
+      if (this._trailTimer <= 0 && frog.velocity.length() > 60) {
         this._trailTimer = 0.03;
         this.trail.push(frog.position.clone());
         if (this.trail.length > 60) this.trail.shift();
@@ -456,7 +459,9 @@
       for (let i = 0; i < 30; i++) {
         v = v.add(g.scale(dt));
         p = p.addScaled(v, dt);
-        if (p.y > 600) break;
+        // Cortar en la línea del suelo (~620) para que la rana fantasma
+        // aterrice sobre la arena y no "flote".
+        if (p.y > 620) break;
         pts.push(p.clone());
       }
       return pts;
