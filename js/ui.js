@@ -12,6 +12,7 @@
   'use strict';
 
   const NS = (global.FrogGame = global.FrogGame || {});
+  const CONTENT = NS.Content;
 
   /** SVG inline de la rana leopardo (reutilizado en HUD/menú). */
   function frogIconSVG(size = 40, spot = false) {
@@ -51,6 +52,11 @@
       this.overlay = null;
       this.toast = null;
       this.rotateHint = null;
+      this.modal = null;
+      this.modalBody = null;
+      this.modalTitleEl = null;
+      this.modalPrimaryBtn = null;
+      this._modalPrimaryHandler = null;
 
       this._build();
     }
@@ -90,28 +96,50 @@
         <div class="menu" id="menu">
           <div class="menu-hero">${frogIconSVG(150, true)}</div>
           <h1 class="menu-title">Rana <span>Leopardo</span></h1>
-          <p class="menu-subtitle">Aventura en Corn Island · Caribe pastel</p>
+          <p class="menu-subtitle">Una aventura en Corn Island</p>
+          <p class="menu-tagline">${CONTENT.menu.tagline}</p>
           <button class="btn btn-big btn-primary" id="btn-play">▶ Jugar</button>
+          <button class="btn btn-ghost btn-info" id="btn-info">ℹ️ Sobre el juego</button>
           <div class="level-select" id="level-select"></div>
           <div class="menu-toggles">
             <button class="icon-btn" id="btn-menu-sound" title="Sonido">🔊</button>
             <button class="icon-btn" id="btn-menu-music" title="Música">🎵</button>
           </div>
-          <p class="menu-hint">Arrastra la rana en la resortera y suéltala 🐸</p>
+          <p class="menu-hint">${CONTENT.menu.hint}</p>
+          <p class="menu-footer">${CONTENT.menu.footer} <strong>Nativerse</strong> 💚</p>
         </div>
 
         <!-- OVERLAY VICTORIA / DERROTA -->
         <div class="overlay" id="overlay" hidden>
           <div class="overlay-card" id="overlay-card">
-            <div class="overlay-title" id="overlay-title">¡Victoria!</div>
+            <div class="overlay-title" id="overlay-title">¡Excelente trabajo!</div>
             <div class="overlay-stars" id="overlay-stars"></div>
             <div class="overlay-score">Puntos: <span id="overlay-score">0</span></div>
             <div class="overlay-info" id="overlay-info"></div>
+            <div class="overlay-fact" id="overlay-fact" hidden>
+              <div class="overlay-fact-title" id="overlay-fact-title"></div>
+              <div class="overlay-fact-text" id="overlay-fact-text"></div>
+            </div>
             <div class="overlay-record" id="overlay-record"></div>
             <div class="overlay-buttons">
               <button class="btn btn-ghost" id="btn-overlay-menu">Menú</button>
               <button class="btn btn-primary" id="btn-overlay-restart">↻ Reintentar</button>
+              <button class="btn btn-primary" id="btn-overlay-final" hidden>🎉 Ver final</button>
               <button class="btn btn-primary" id="btn-overlay-next" hidden>Siguiente ›</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL (información del juego / final) -->
+        <div class="modal-backdrop" id="modal" hidden>
+          <div class="modal-card">
+            <div class="modal-head">
+              <h2 class="modal-title" id="modal-title"></h2>
+              <button class="icon-btn modal-close" id="modal-close" title="Cerrar" aria-label="Cerrar">✕</button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-actions">
+              <button class="btn btn-primary" id="modal-primary"></button>
             </div>
           </div>
         </div>
@@ -143,11 +171,28 @@
         this.engine.audio.unlock();
         this.engine.startLevel(1); // startLevel vive en el Engine, no en la UI
       });
+      $('btn-info').addEventListener('click', () => {
+        this.engine.audio.unlock();
+        this.openInfoModal();
+      });
       $('btn-restart').addEventListener('click', () => this.engine.restartLevel());
       $('btn-next').addEventListener('click', () => this.engine.nextLevel());
       $('btn-overlay-menu').addEventListener('click', () => this.engine.showMenu());
       $('btn-overlay-restart').addEventListener('click', () => this.engine.restartLevel());
       $('btn-overlay-next').addEventListener('click', () => this.engine.nextLevel());
+      $('btn-overlay-final').addEventListener('click', () => {
+        this.engine.audio.unlock();
+        this.openFinalModal();
+      });
+      $('modal-close').addEventListener('click', () => this.hideModal());
+      $('modal-primary').addEventListener('click', () => {
+        if (this._modalPrimaryHandler) this._modalPrimaryHandler();
+        this.hideModal();
+      });
+      this.modal = $('modal');
+      this.modalBody = $('modal-body');
+      this.modalTitleEl = $('modal-title');
+      this.modalPrimaryBtn = $('modal-primary');
 
       const soundBtn = $('btn-sound');
       const menuSound = $('btn-menu-sound');
@@ -204,6 +249,7 @@
       this.hud.hidden = true;
       this.overlay.hidden = true;
       this.menu.hidden = false;
+      this.hideModal();
       this._syncSoundIcons();
       this.buildLevelSelect();
     }
@@ -305,9 +351,24 @@
       this.overlay.classList.remove('lose');
       this.overlay.classList.add('win');
       const $ = (id) => document.getElementById(id);
-      $('overlay-title').textContent = '¡Victoria!';
+
+      // Textos según cornisland.md: "Excelente trabajo" o la victoria perfecta
+      const isPerfect = stars >= 3;
+      $('overlay-title').textContent = isPerfect ? CONTENT.victory.perfectTitle : CONTENT.victory.title;
       $('overlay-score').textContent = score;
-      $('overlay-info').textContent = '';
+      $('overlay-info').textContent = isPerfect
+        ? CONTENT.victory.perfectLine
+        : CONTENT.victory.line;
+      // Curiosidad del nivel superado (mensajes "entre niveles")
+      const fact = CONTENT.levels[level - 1];
+      const factEl = $('overlay-fact');
+      if (fact) {
+        factEl.hidden = false;
+        $('overlay-fact-title').textContent = fact.title;
+        $('overlay-fact-text').textContent = fact.text;
+      } else {
+        factEl.hidden = true;
+      }
       // Récord del nivel (best score en localStorage)
       const rec = $('overlay-record');
       if (bestScore > 0) {
@@ -319,6 +380,8 @@
       }
       const next = $('btn-overlay-next');
       next.hidden = !hasNext;
+      // Al terminar el último nivel: botón para el modal del final del juego.
+      $('btn-overlay-final').hidden = hasNext;
       // Estrellas animadas
       const starsEl = $('overlay-stars');
       starsEl.innerHTML = '';
@@ -342,16 +405,21 @@
       this.overlay.classList.remove('win');
       this.overlay.classList.add('lose');
       const $ = (id) => document.getElementById(id);
-      $('overlay-title').textContent = '¡Oh no!';
+      $('overlay-title').textContent = CONTENT.defeat.title;
       $('overlay-score').textContent = score;
       // Deja claro POR QUÉ se perdió: se gana eliminando a TODOS los cangris
       // (nombre cariñoso de los enemigos: cangrejos, peces globo y cocos)
-      $('overlay-info').textContent = enemiesLeft > 0
-        ? (enemiesLeft === 1 ? 'Quedaba 1 cangri en pie' : 'Quedaban ' + enemiesLeft + ' cangris en pie')
-        : '';
+      $('overlay-info').textContent = [
+        enemiesLeft > 0
+          ? (enemiesLeft === 1 ? 'Quedaba 1 cangri en pie' : 'Quedaban ' + enemiesLeft + ' cangris en pie')
+          : '',
+        CONTENT.defeat.tip
+      ].filter(Boolean).join(' · ');
       $('overlay-stars').innerHTML = '<span class="star big">☆</span><span class="star big">☆</span><span class="star big">☆</span>';
       document.getElementById('btn-overlay-next').hidden = true;
+      document.getElementById('btn-overlay-final').hidden = true;
       document.getElementById('overlay-record').textContent = '';
+      document.getElementById('overlay-fact').hidden = true;
       this.hud.hidden = true;
     }
 
@@ -375,6 +443,68 @@
     setNextEnabled(enabled) {
       const btn = document.getElementById('btn-next');
       if (btn) btn.disabled = !enabled;
+    }
+
+    /* ================== MODAL INFORMATIVO ================== */
+
+    /** Construye una sección de texto simple (título opcional + párrafos). */
+    _modalSection(title, text) {
+      const titleHtml = title ? '<h3 class="modal-section-title">' + title + '</h3>' : '';
+      const paras = (Array.isArray(text) ? text : [text])
+        .map((p) => '<p>' + p + '</p>')
+        .join('');
+      return '<div class="modal-section">' + titleHtml + paras + '</div>';
+    }
+
+    /** Abre el modal con los contenidos indicados. */
+    openModal({ title, sections, primaryLabel, primaryHandler }) {
+      this._modalPrimaryHandler = primaryHandler || null;
+      this.modalTitleEl.textContent = title || '';
+      this.modalBody.innerHTML = sections.join('');
+      this.modalPrimaryBtn.textContent = primaryLabel || 'Entendido';
+      this.modal.hidden = false;
+      document.getElementById('overlay').hidden = true;
+    }
+
+    hideModal() {
+      if (!this.modal) return;
+      this.modal.hidden = true;
+      this._modalPrimaryHandler = null;
+    }
+
+    /** Modal "Sobre el juego": introducción, historia, objetivo y filosofía. */
+    openInfoModal() {
+      const C = CONTENT;
+      const sections = [
+        this._modalSection(C.intro.title, C.intro.text),
+        this._modalSection(C.hero.name, C.hero.text),
+        this._modalSection(C.story.title, C.story.text),
+        this._modalSection(C.objective.title, C.objective.text),
+        this._modalSection(C.philosophy.title, C.philosophy.text)
+      ];
+      this.openModal({
+        title: '🐸 Rana Leopardo',
+        sections,
+        primaryLabel: 'Continuar',
+        primaryHandler: () => this.engine.audio.play('click')
+      });
+    }
+
+    /** Modal final: se muestra al superar el último nivel. */
+    openFinalModal() {
+      const C = CONTENT;
+      const sections = [
+        this._modalSection(null, C.final.text),
+        this._modalSection(C.final.natureHeading, C.final.natureText),
+        this._modalSection(C.final.frogsHeading, C.final.frogsText),
+        this._modalSection(C.final.islandHeading, C.final.islandText)
+      ];
+      this.openModal({
+        title: C.final.title,
+        sections,
+        primaryLabel: 'Volver al menú',
+        primaryHandler: () => this.engine.showMenu()
+      });
     }
   }
 

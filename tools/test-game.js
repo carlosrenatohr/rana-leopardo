@@ -2,7 +2,8 @@
 /* ============================================================
  * Smoke test END-TO-END headless: arranca game.js con un entorno
  * DOM/Canvas/WebAudio simulado, carga el nivel 1, simula un
- * arrastre+disparo, corre la física y verifica victoria/derrota.
+ * arrastre+disparo, corre la física y verifica victoria/derrota
+ * (incluye los contenidos educativos de docs/cornisland.md).
  * ============================================================ */
 const path = require('path');
 const ROOT = '/home/renato/Codee/rana-leopardo-game';
@@ -144,7 +145,7 @@ global.window.performance = global.performance;
 
 /* ---------------- Cargar el juego (mismo orden que index.html) ---------------- */
 const files = ['utils', 'collision', 'physics', 'camera', 'particles', 'lighting', 'scene',
-  'entities', 'renderer', 'audio', 'level-loader', 'input', 'ui', 'engine', 'game'];
+  'entities', 'renderer', 'audio', 'level-loader', 'input', 'content', 'ui', 'engine', 'game'];
 for (const f of files) {
   try {
     require(path.join(ROOT, 'js', f + '.js'));
@@ -344,6 +345,58 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   await new Promise((r) => setTimeout(r, 3200));
   check('nombre de nivel se oculta solo a los ~3 s', !preHide && nameEl.classList.contains('hide'),
     'hide=' + nameEl.classList.contains('hide'));
+
+  console.log('\n== H. Contenido educativo (docs/cornisland.md) ==');
+  // El modal "Sobre el juego" agrega la información esencial y el objetivo.
+  engine.showMenu();
+  document.getElementById('btn-info').dispatchEvent({ type: 'click' });
+  check('modal de información se abre desde el menú',
+    engine.ui.modal && engine.ui.modal.hidden === false);
+  check('modal incluye el objetivo del juego', /Objetivo/.test(engine.ui.modalBody.innerHTML),
+    'objetivo presente');
+  document.getElementById('modal-close').dispatchEvent({ type: 'click' });
+  check('modal se cierra', engine.ui.modal.hidden === true);
+
+  // Footer con el desarrollador (el stub DOM no reconstruye el innerHTML de
+  // los nodos anidados, así que se verifica el template de ui.js en la fuente).
+  const uiSrc = require('fs').readFileSync(path.join(ROOT, 'js/ui.js'), 'utf8');
+  check('footer del menú acredita a Nativerse', /menu-footer[\s\S]*Nativerse/.test(uiSrc) && /Nativerse/.test(NS.Content.menu.footer + ' Nativerse'));
+  check('footer del menú incluye "Desarrollado por"', NS.Content.menu.footer === 'Desarrollado por');
+
+  // Curiosidad por nivel en la victoria
+  engine.ui.showVictory({
+    score: 1600,
+    stars: 2,
+    best: engine.progress.best,
+    hasNext: true,
+    level: 3,
+    bestScore: 0,
+    newRecord: false
+  });
+  const factEl = document.getElementById('overlay-fact');
+  check('victoria muestra la curiosidad del nivel',
+    factEl.hidden === false && /arrecif/i.test(document.getElementById('overlay-fact-text').textContent),
+    document.getElementById('overlay-fact-text').textContent);
+
+  // Último nivel: botón de final y modal con el cierre del juego
+  engine.ui.showVictory({
+    score: 4000,
+    stars: 3,
+    best: engine.progress.best,
+    hasNext: false,
+    level: 6,
+    bestScore: 0,
+    newRecord: false
+  });
+  const finalBtn = document.getElementById('btn-overlay-final');
+  check('último nivel ofrece "Ver final"', finalBtn.hidden === false);
+  finalBtn.dispatchEvent({ type: 'click' });
+  check('modal final se abre', engine.ui.modal && engine.ui.modal.hidden === false);
+  check('modal final incluye el agradecimiento', /Gracias por jugar/.test(document.getElementById('modal-title').textContent),
+    document.getElementById('modal-title').textContent);
+  check('modal final incluye "cuidemos la naturaleza"', /Cuidemos la naturaleza/.test(engine.ui.modalBody.innerHTML || ''));
+  document.getElementById('modal-primary').dispatchEvent({ type: 'click' });
+  check('cerrar el final vuelve al menú', engine.state === 'MENU');
 
   console.log('\n========================================');
   console.log(`RESULTADO: ${pass} ✓  ${fail} ✗`);
