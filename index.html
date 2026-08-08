@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#dff0ff" />
+  <title>Rana Leopardo — Aventura en Corn Island</title>
+  <meta name="description" content="Juego inspirado en Angry Birds: lanza a la rana leopardo contra castillos de bloques en una isla caribeña pastel. HTML5 + Canvas, sin dependencias." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Canvas principal del juego -->
+  <canvas id="game" aria-label="Juego Rana Leopardo"></canvas>
+
+  <!-- La UI (HUD, menús, overlays) se construye aquí con JavaScript -->
+  <div id="ui-root"></div>
+
+  <noscript>
+    <div style="padding:40px;font-family:sans-serif;text-align:center">
+      Rana Leopardo necesita JavaScript para funcionar. Actívalo y recarga la página. 🐸
+    </div>
+  </noscript>
+
+  <!-- Módulos en orden de dependencia (scripts clásicos: funciona con file://) -->
+  <script src="js/utils.js"></script>
+  <script src="js/collision.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/lighting.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/level-loader.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

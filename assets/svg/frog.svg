@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 110" width="120" height="110" role="img" aria-label="Rana Leopardo">
+  <!-- Cuerpo -->
+  <defs>
+    <radialGradient id="body" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#b8e88f"/>
+      <stop offset="100%" stop-color="#6fbf4f"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="60" cy="62" rx="54" ry="46" fill="url(#body)" stroke="#5f9e42" stroke-width="3"/>
+  <!-- Vientre -->
+  <ellipse cx="60" cy="76" rx="33" ry="25" fill="#fdf6dd"/>
+  <!-- Manchas de rana leopardo -->
+  <g fill="#2e5a2e" opacity="0.55">
+    <ellipse cx="38" cy="44" rx="9" ry="6"/>
+    <ellipse cx="66" cy="36" rx="8" ry="5.5"/>
+    <ellipse cx="86" cy="54" rx="7.5" ry="5"/>
+    <ellipse cx="52" cy="56" rx="7" ry="5"/>
+    <ellipse cx="76" cy="72" rx="6.5" ry="4.5"/>
+    <ellipse cx="34" cy="66" rx="6.5" ry="4.5"/>
+  </g>
+  <!-- Patas -->
+  <ellipse cx="16" cy="88" rx="16" ry="10" fill="#8acf63" stroke="#5f9e42" stroke-width="2"/>
+  <ellipse cx="104" cy="88" rx="16" ry="10" fill="#8acf63" stroke="#5f9e42" stroke-width="2"/>
+  <!-- Mejillas -->
+  <circle cx="32" cy="68" r="7" fill="#ffb3c1" opacity="0.7"/>
+  <circle cx="88" cy="68" r="7" fill="#ffb3c1" opacity="0.7"/>
+  <!-- Sonrisa -->
+  <path d="M48 76 Q60 84 72 76" stroke="#2e5a2e" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <!-- Ojos -->
+  <circle cx="42" cy="36" r="17" fill="#ffffff" stroke="#5f9e42" stroke-width="2.5"/>
+  <circle cx="78" cy="36" r="17" fill="#ffffff" stroke="#5f9e42" stroke-width="2.5"/>
+  <circle cx="44" cy="38" r="8.5" fill="#26261f"/>
+  <circle cx="76" cy="38" r="8.5" fill="#26261f"/>
+  <circle cx="42" cy="34" r="3" fill="#ffffff"/>
+  <circle cx="74" cy="34" r="3" fill="#ffffff"/>
+</svg>

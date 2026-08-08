@@ -1,0 +1,10 @@
+# Entregables y artefactos locales
+*.zip
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+*.log
+
+# Entorno (por si algún día se añade tooling)
+node_modules/
