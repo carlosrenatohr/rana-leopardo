@@ -76,6 +76,9 @@
       // Resortera (trasera) + goma trasera
       scene.drawSlingshotBack(ctx, world.holdPosition || null);
 
+      // Halo de la rana en vuelo: la hace resaltar sobre arena/mar
+      this._drawFrogHalo(ctx, world.activeFrog);
+
       // Entidades físicas
       for (const entity of entities) {
         if (!entity.active || entity.dead) continue;
@@ -162,6 +165,31 @@
         ctx.arc(end.x + 4.5, end.y - 3, 1.5, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.restore();
+    }
+
+    /**
+     * Halo pulsante alrededor de la rana en vuelo: hace visible la bolita
+     * sobre arena/mar aunque la estela se funda con el fondo. Se dibuja
+     * debajo de la entidad para no tapar sus detalles.
+     */
+    _drawFrogHalo(ctx, frog) {
+      if (!frog || !frog.getWorldCenter) return;
+      const p = frog.getWorldCenter();
+      const pulse = 0.5 + 0.5 * Math.sin(frog.time * 9);
+      ctx.save();
+      ctx.globalAlpha = 0.28 + 0.14 * pulse;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 24 + pulse * 6, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = '#8fd05f';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 30, 0, Math.PI * 2);
+      ctx.stroke();
       ctx.restore();
     }
 

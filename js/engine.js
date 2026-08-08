@@ -145,6 +145,25 @@
       }
     }
 
+    /** Posiciones de los enemigos del nivel actual (para el panel "recon"). */
+    getEnemySpots() {
+      const spots = [];
+      for (const def of (this.levelData && this.levelData.objects) || []) {
+        if (def.type === 'crab' || def.type === 'coco' || def.type === 'pufferfish') {
+          spots.push({ type: def.type, x: def.x, y: def.y });
+        }
+      }
+      return spots;
+    }
+
+    getWorldWidth() {
+      return this.levelData ? this.levelData.width : 2400;
+    }
+
+    getSlingshotX() {
+      return this.scene && this.scene.slingshot ? this.scene.slingshot.x : 220;
+    }
+
     /* ================== MENÚ ================== */
 
     _buildMenuScene() {
@@ -261,6 +280,7 @@
       this._spawnHeldFrog();
 
       this.ui.showHUD();
+      this.ui.showLevelIntro(this.levelIndex);
       this.ui.setNextEnabled(this.levelIndex < LevelLoader.getLevelCount());
       this.ui.updateHUD(this._hudData());
       this.ui.buildLevelSelect();
@@ -324,6 +344,9 @@
       frog.velocity.copy(v);
       frog.angularVelocity = -speed / 60; // giro hacia delante (torque simple)
       this.world.addBody(frog);
+      // Se añade a entities para que el renderer la dibuje durante el vuelo
+      // (antes solo se veía la estela: la bolita de rana era invisible).
+      this.entities.push(frog);
       this.activeFrog = frog;
       this.heldFrog = null;
       this.frogQueue--;
@@ -745,6 +768,7 @@
         particles: this.particles,
         lighting: this.lighting,
         heldFrog: this.heldFrog,
+        activeFrog: this.activeFrog,
         holdPosition: hold,
         trajectory: this.trajectory,
         trail: this.trail

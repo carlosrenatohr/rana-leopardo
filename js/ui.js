@@ -82,6 +82,9 @@
             </div>
             <div class="hud-right">
               <div class="frogs-left" id="hud-frogs"></div>
+              <button class="icon-btn" id="btn-hud-fact" title="Curiosidad del nivel">💡</button>
+              <button class="icon-btn" id="btn-hud-recon" title="Ubicación de los cangris">🔍</button>
+              <button class="icon-btn" id="btn-hud-menu" title="Menú principal">🏠</button>
               <button class="icon-btn" id="btn-sound" title="Sonido" aria-label="Sonido">🔊</button>
             </div>
           </div>
@@ -89,7 +92,15 @@
             <button class="btn btn-ghost" id="btn-restart">↻ Reiniciar</button>
             <button class="btn btn-primary" id="btn-next" disabled>Siguiente ›</button>
           </div>
+          <div class="hud-fact" id="hud-fact" hidden>
+            <div class="hud-fact-title" id="hud-fact-title"></div>
+            <div class="hud-fact-text" id="hud-fact-text"></div>
+          </div>
           <div class="hud-name" id="hud-levelname">Primera Ola</div>
+          <div class="recon" id="recon" hidden>
+            <div class="recon-title">📍 Ubicación de los cangris — nivel <span id="recon-level"></span></div>
+            <div class="recon-track" id="recon-track"></div>
+          </div>
         </div>
 
         <!-- MENÚ PRINCIPAL -->
@@ -193,6 +204,12 @@
       this.modalBody = $('modal-body');
       this.modalTitleEl = $('modal-title');
       this.modalPrimaryBtn = $('modal-primary');
+      this.recon = $('recon');
+      this.reconTrack = $('recon-track');
+      this.factChip = $('hud-fact');
+      $('btn-hud-menu').addEventListener('click', () => this.engine.showMenu());
+      $('btn-hud-fact').addEventListener('click', () => this.toggleFact());
+      $('btn-hud-recon').addEventListener('click', () => this.toggleRecon());
 
       const soundBtn = $('btn-sound');
       const menuSound = $('btn-menu-sound');
@@ -250,6 +267,8 @@
       this.overlay.hidden = true;
       this.menu.hidden = false;
       this.hideModal();
+      if (this.recon) this.recon.hidden = true;
+      if (this.factChip) this.factChip.hidden = true;
       this._syncSoundIcons();
       this.buildLevelSelect();
     }
@@ -443,6 +462,81 @@
     setNextEnabled(enabled) {
       const btn = document.getElementById('btn-next');
       if (btn) btn.disabled = !enabled;
+    }
+
+    /* ================== CURIOSIDAD + RECON ================== */
+
+    /**
+     * Se llamo al entrar a un nivel: muestra la curiosidad del nivel
+     * (transitoria, como el nombre) y una mini-mapa con la ubicación
+     * de los cangris durante unos segundos antes de jugar.
+     */
+    showLevelIntro(level) {
+      this._showFact(level);
+      this.showRecon(true);
+    }
+
+    /** Rellena y muestra la curiosidad del nivel actual (transitoria). */
+    _showFact(level) {
+      const fact = CONTENT.levels[level - 1];
+      this.factChip.hidden = true;
+      this.factChip.classList.remove('hide');
+      clearTimeout(this._factTimer);
+      if (fact) {
+        document.getElementById('hud-fact-title').textContent = fact.title;
+        document.getElementById('hud-fact-text').textContent = fact.text;
+        this.factChip.hidden = false;
+        this._factTimer = setTimeout(() => this.factChip.classList.add('hide'), 4500);
+      }
+    }
+
+    /** Muestra/oculta la curiosidad del nivel actual (botón 💡). */
+    toggleFact() {
+      const visible = !this.factChip.hidden && !this.factChip.classList.contains('hide');
+      if (visible) {
+        clearTimeout(this._factTimer);
+        this.factChip.classList.add('hide');
+      } else {
+        this._showFact(this.engine.levelIndex);
+      }
+    }
+
+    /** Construye y muestra el mini-mapa de enemigos (también al jugar). */
+    showRecon(auto = false) {
+      if (!this.recon || !this.engine.levelData) {
+        if (this.recon) this.recon.hidden = true;
+        return;
+      }
+      const level = this.engine.levelIndex;
+      const spots = this.engine.getEnemySpots();
+      const width = this.engine.getWorldWidth();
+      const slingX = this.engine.getSlingshotX();
+      document.getElementById('recon-level').textContent = level;
+      // Mini-mapa horizontal: resortera (rana) en la izquierda y cada cangri
+      // en su posición relativa (%), para saber hacia dónde apuntar.
+      const dots = spots.map((s) => {
+        const left = Math.max(0, Math.min(92, (s.x / width) * 100));
+        const icon = s.type === 'crab' ? '🦀' : s.type === 'coco' ? '🥥' : '🐡';
+        return `<span class="recon-dot" style="left:${left}%">${icon}</span>`;
+      }).join('');
+      const frogLeft = Math.max(0, Math.min(100, (slingX / width) * 100));
+      this.reconTrack.innerHTML =
+        `<span class="recon-start" style="left:${frogLeft}%">🐸</span>` + dots;
+      this.recon.hidden = false;
+      clearTimeout(this._reconTimer);
+      if (auto) {
+        this._reconTimer = setTimeout(() => { this.recon.hidden = true; }, 3500);
+      }
+    }
+
+    /** Muestra/oculta el mini-mapa de cangris (botón 🔍). */
+    toggleRecon() {
+      if (this.recon.hidden) {
+        this.showRecon(false);
+      } else {
+        this.recon.hidden = true;
+        clearTimeout(this._reconTimer);
+      }
     }
 
     /* ================== MODAL INFORMATIVO ================== */

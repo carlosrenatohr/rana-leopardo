@@ -398,6 +398,36 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   document.getElementById('modal-primary').dispatchEvent({ type: 'click' });
   check('cerrar el final vuelve al menú', engine.state === 'MENU');
 
+  console.log('\n== I. HUD en partida: menú, curiosidad y recon ==');
+  await engine.startLevel(1);
+  // Botón de volver al menú principal dentro del nivel
+  const menuBtn = document.getElementById('btn-hud-menu');
+  check('botón de menú presente en el HUD', !!menuBtn);
+  menuBtn.dispatchEvent({ type: 'click' });
+  check('botón del HUD vuelve al menú', engine.state === 'MENU' && engine.ui.hud.hidden === true);
+
+  // Curiosidad transitoria al entrar al nivel
+  await engine.startLevel(2);
+  const fact = document.getElementById('hud-fact');
+  check('curiosidad visible al iniciar nivel', fact && fact.hidden === false);
+  check('curiosidad muestra el texto del nivel', /ranas/.test(document.getElementById('hud-fact-text').textContent),
+    document.getElementById('hud-fact-text').textContent);
+  // Reabrir/cerrar con el botón 💡
+  document.getElementById('btn-hud-fact').dispatchEvent({ type: 'click' });
+  check('botón 💡 oculta la curiosidad', fact.classList.contains('hide'));
+  document.getElementById('btn-hud-fact').dispatchEvent({ type: 'click' });
+  check('botón 💡 re-muestra la curiosidad', !fact.classList.contains('hide') && !fact.hidden);
+
+  // Mini-mapa de cangris (recon)
+  const recon = document.getElementById('recon');
+  check('recon visible al iniciar nivel', recon.hidden === false);
+  check('recon contiene posiciones de enemigos', /[\u{1F980}\u{1F9A5}\u{1F965}]/u.test(engine.ui.reconTrack.innerHTML),
+    engine.ui.reconTrack.innerHTML);
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  check('botón 🔍 oculta el recon', recon.hidden === true);
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  check('botón 🔍 re-muestra el recon', recon.hidden === false);
+
   console.log('\n========================================');
   console.log(`RESULTADO: ${pass} ✓  ${fail} ✗`);
   console.log('========================================');
