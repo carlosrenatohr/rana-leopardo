@@ -307,6 +307,23 @@
       this.emit({ x, y, size: 26, color: '#bfe9f7', type: TYPES.RING, life: 0.5 });
     }
 
+    /** Burbujas ascendentes (pez globo derrotado, agua). */
+    bubble(x, y, power = 1) {
+      for (let i = 0; i < 8; i++) {
+        this.emit({
+          x, y,
+          vx: MathUtils.rand(-50, 50),
+          vy: MathUtils.rand(-160, -60) * power,
+          gravity: -180,
+          life: MathUtils.rand(0.6, 1.2),
+          size: MathUtils.rand(4, 10),
+          color: 'rgba(190,230,250,0.95)',
+          type: TYPES.BUBBLE,
+          drag: 0.5
+        });
+      }
+    }
+
     /** Anillo de impacto. */
     impactRing(x, y, color = '#ffffff', size = 18) {
       this.emit({ x, y, size, color, type: TYPES.RING, life: 0.35 });
