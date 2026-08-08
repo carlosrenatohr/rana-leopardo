@@ -71,6 +71,7 @@
                 <span class="score-value" id="hud-score">0</span>
               </div>
               <div class="stars" id="hud-stars"></div>
+              <div class="hud-best" id="hud-best"></div>
               <div class="hud-goal" id="hud-goal"></div>
             </div>
             <div class="hud-right">
@@ -106,6 +107,7 @@
             <div class="overlay-stars" id="overlay-stars"></div>
             <div class="overlay-score">Puntos: <span id="overlay-score">0</span></div>
             <div class="overlay-info" id="overlay-info"></div>
+            <div class="overlay-record" id="overlay-record"></div>
             <div class="overlay-buttons">
               <button class="btn btn-ghost" id="btn-overlay-menu">Menú</button>
               <button class="btn btn-primary" id="btn-overlay-restart">↻ Reintentar</button>
@@ -249,12 +251,13 @@
     }
 
     /** Actualiza el HUD. */
-    updateHUD({ level, score, frogsLeft, stars = 0, levelName, starGoal }) {
+    updateHUD({ level, score, frogsLeft, stars = 0, levelName, starGoal, bestScore = 0 }) {
       const $ = (id) => document.getElementById(id);
       if ($('hud-level')) $('hud-level').textContent = level;
       if ($('hud-score')) $('hud-score').textContent = score;
       if ($('hud-levelname')) $('hud-levelname').textContent = levelName || '';
       if ($('hud-goal')) $('hud-goal').textContent = starGoal || '';
+      if ($('hud-best')) $('hud-best').textContent = bestScore > 0 ? '🏆 Récord: ' + bestScore : '';
       this._renderStars('hud-stars', stars);
       this._renderFrogs('hud-frogs', frogsLeft);
     }
@@ -284,7 +287,7 @@
 
     /* ================== OVERLAYS ================== */
 
-    showVictory({ score, stars, best, hasNext, level }) {
+    showVictory({ score, stars, best, hasNext, level, bestScore = 0, newRecord = false }) {
       this.overlay.hidden = false;
       this.overlay.classList.remove('lose');
       this.overlay.classList.add('win');
@@ -292,6 +295,15 @@
       $('overlay-title').textContent = '¡Victoria!';
       $('overlay-score').textContent = score;
       $('overlay-info').textContent = '';
+      // Récord del nivel (best score en localStorage)
+      const rec = $('overlay-record');
+      if (bestScore > 0) {
+        rec.textContent = newRecord
+          ? '🏆 ¡Nuevo récord del nivel: ' + bestScore + '!' :
+          'Récord del nivel: ' + bestScore;
+      } else {
+        rec.textContent = '';
+      }
       const next = $('btn-overlay-next');
       next.hidden = !hasNext;
       // Estrellas animadas
@@ -326,6 +338,7 @@
         : '';
       $('overlay-stars').innerHTML = '<span class="star big">☆</span><span class="star big">☆</span><span class="star big">☆</span>';
       document.getElementById('btn-overlay-next').hidden = true;
+      document.getElementById('overlay-record').textContent = '';
       this.hud.hidden = true;
     }
 
