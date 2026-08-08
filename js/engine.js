@@ -43,7 +43,8 @@
     DAMAGE_K: 0.3, // daño = velocidad de impacto * K
     SETTLE_TIME: 0.35, // segundos en reposo para consumir la rana (reinicio ágil)
     BASE_CLEAR: 500, // puntos por superar el nivel
-    FROG_BONUS: 250 // puntos por rana sin usar
+    FROG_BONUS: 250, // puntos por rana sin usar
+    PREVIEW_TIME: 3.5 // flyover de cámara al iniciar nivel (ver los cangris)
   };
 
   class Engine {
@@ -79,6 +80,7 @@
       this.time = 0;
       this._lastTime = performance.now();
       this._hudTimer = 0;
+      this.previewT = 0; // temporizador del flyover de cámara (0 = off)
 
       // Progreso (nivel desbloqueado + estrellas + récords de puntuación)
       this.progress = { unlocked: 1, best: {}, scores: {} };
@@ -286,6 +288,69 @@
       this.ui.buildLevelSelect();
       this.input.setEnabled(true);
       this.audio.play('click');
+
+      // Flyover de cámara: recorre rápidamente la posición de los cangris
+      // y vuelve a la resortera para que el jugador calcule su tiro.
+      this._startPreview();
+    }
+
+    /** Inicia el paneo de cámara sobre los enemigos del nivel. */
+    _startPreview() {
+      const spots = this.getEnemySpots();
+      if (spots.length === 0) return;
+      // Punto focal = centro de masa de los enemigos, encuadrado en el nivel
+      let avg = 0;
+      for (const s of spots) avg += s.x;
+      const width = this.getWorldWidth();
+      this._previewFromX = 0;
+      this._previewToX = MathUtils.clamp(avg / spots.length - this.camera.visibleW / 2, 0, Math.max(0, width - this.camera.visibleW));
+      this._previewZoomMid = width / 2;
+      this.previewT = CONFIG.PREVIEW_TIME;
+      // El jugador puede interactuar en cualquier momento: el paneo se
+      // cancela en _onDragStart/_onKey para no bloquear la partida.
+    }
+
+    /** Cancela el flyover de cámara (jugador interactúa o termina el paneo). */
+    _skipPreview() {
+      if (this.previewT <= 0) return;
+      this.previewT = 0;
+      this.camera.stopFollow();
+      this.camera.targetX = 0;
+      this.camera.targetY = 0;
+      this.camera.setZoom(1);
+    }
+
+    /** Avanza el paneo de cámara (se llama cada frame mientras previewT > 0). */
+    _updatePreview(dt) {
+      if (this.previewT <= 0) return;
+      this.previewT = Math.max(0, this.previewT - dt);
+      const total = CONFIG.PREVIEW_TIME;
+      const t = 1 - this.previewT / total; // 0 → 1
+      const from = this._previewFromX;
+      const to = this._previewToX;
+      let targetX;
+      let zoom;
+      if (t < 0.32) {
+        // Ida: de la resortera al foco de los enemigos
+        const u = t / 0.32;
+        targetX = MathUtils.lerp(from, to, MathUtils.smooth(0, 1, u));
+        zoom = 1;
+      } else if (t < 0.6) {
+        // Foco: se sostiene la vista sobre los cangris
+        targetX = to;
+        zoom = 1.18;
+      } else {
+        // Vuelta a la resortera (vista inicial)
+        const u = (t - 0.6) / 0.4;
+        const returnU = 1 - MathUtils.smooth(0, 1, u);
+        targetX = to * returnU;
+        zoom = 1;
+      }
+      this.camera.stopFollow();
+      this.camera.targetX = targetX;
+      this.camera.targetY = 0;
+      this.camera.setZoom(zoom);
+      if (this.previewT <= 0) this._skipPreview();
     }
 
     restartLevel() {
@@ -438,6 +503,7 @@
     /* ================== RESORTERA ================== */
 
     _onDragStart(worldPos) {
+      this._skipPreview(); // si el flyover está en curso, se corta
       if (this.state !== 'PLAYING' || !this.heldFrog) return;
       this.dragging = true;
       this._updatePull(worldPos);
@@ -496,6 +562,7 @@
     }
 
     _onKey(key) {
+      this._skipPreview(); // cualquier tecla corta el flyover inicial
       const k = key.toLowerCase();
       if (k === 'r' && this.state === 'PLAYING') this.restartLevel();
       if (k === 'm') this.showMenu();
@@ -617,6 +684,7 @@
       if (this.state !== 'PLAYING') return;
       this.state = 'WON';
       this.input.setEnabled(false);
+      this._skipPreview(); // si el flyover seguía en curso, se corta
 
       // Bonus de ranas restantes
       const frogBonus = this.frogQueue * CONFIG.FROG_BONUS;
@@ -721,6 +789,9 @@
 
       // Física solo en partida
       if (this.state === 'PLAYING') {
+        // Flyover de cámara sobre los enemigos (se cancela al interactuar)
+        this._updatePreview(dt);
+
         this.world.advance(dt);
 
         // Actualizar entidades

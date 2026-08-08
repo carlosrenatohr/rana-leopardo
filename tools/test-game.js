@@ -215,8 +215,12 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   engine.camera.targetX = 1335;
   engine.camera.targetY = 300;
   await engine.restartLevel();
+  // El flyover de cámara está activo al iniciar nivel (feature nuevo):
+  // el jugador lo corta con la primera interacción (drag/tecla).
+  check('flyover de cámara arranca al iniciar nivel', engine.previewT > 0, 'previewT=' + engine.previewT);
+  engine._skipPreview();
   runFrames(90);
-  check('cámara reiniciada en el origen',
+  check('cámara reiniciada en el origen (tras skip del flyover)',
     Math.abs(engine.camera.x) < 20 && Math.abs(engine.camera.targetX) < 20 && Math.abs(engine.camera.y) < 20,
     'x=' + engine.camera.x.toFixed(0) + ' tx=' + engine.camera.targetX.toFixed(0) + ' y=' + engine.camera.y.toFixed(0));
 
