@@ -54,7 +54,7 @@
      */
     draw(world) {
       const { ctx, camera } = this;
-      const { scene, entities, particles, lighting } = world;
+      const { scene, entities, particles, lighting, trail } = world;
 
       ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       ctx.clearRect(0, 0, this.cssW, this.cssH);
@@ -92,6 +92,9 @@
       scene.drawSlingshotFront(ctx, world.holdPosition || null);
       scene.drawSlingshotForkDetail(ctx);
 
+      // Estela de vuelo de la rana (detrás de la trayectoria prevista)
+      this._drawTrail(ctx, trail);
+
       // Puntos de trayectoria (preview)
       this._drawTrajectory(ctx, world.trajectory);
 
@@ -107,16 +110,76 @@
       lighting.drawWaterGlints(ctx, camera, this.cssW, this.cssH, scene.time);
     }
 
-    /** Puntos de la trayectoria prevista mientras se apunta. */
+    /**
+     * Puntos de la trayectoria prevista mientras se apunta.
+     * Visibles: puntos con borde oscuro (contraste sobre arena y mar)
+     * y una rana fantasma en el punto de caída previsto.
+     */
     _drawTrajectory(ctx, trajectory) {
       if (!trajectory || trajectory.length === 0) return;
       ctx.save();
+      ctx.lineJoin = 'round';
       for (let i = 0; i < trajectory.length; i++) {
         const p = trajectory[i];
-        const fade = 1 - i / trajectory.length;
-        ctx.globalAlpha = 0.75 * fade;
-        ctx.fillStyle = i % 3 === 0 ? 'rgba(255,255,255,0.95)' : 'rgba(120,200,160,0.85)';
-        const r = 3.2 * fade + 1;
+        const t = i / trajectory.length;
+        const fade = 1 - t;
+        const r = 5.5 * fade + 1.8;
+        ctx.globalAlpha = 0.95 * fade;
+        // Borde oscuro (contorno) para que se vea sobre cualquier fondo
+        ctx.strokeStyle = 'rgba(50,90,60,0.85)';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+        // Relleno pastel alternando blanco/verde
+        ctx.fillStyle = i % 3 === 0 ? '#ffffff' : '#ffd166';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r - 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Rana fantasma en el punto de aterrizaje previsto
+      const end = trajectory[trajectory.length - 1];
+      if (end) {
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = '#8fd05f';
+        ctx.beginPath();
+        ctx.arc(end.x, end.y, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 0.85;
+        ctx.strokeStyle = '#4c8c38';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Ojitos de la rana fantasma
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(end.x - 4.5, end.y - 3, 3, 0, Math.PI * 2);
+        ctx.arc(end.x + 4.5, end.y - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#26261f';
+        ctx.beginPath();
+        ctx.arc(end.x - 4.5, end.y - 3, 1.5, 0, Math.PI * 2);
+        ctx.arc(end.x + 4.5, end.y - 3, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    /**
+     * Estela de vuelo: puntos que la rana dejó atrás mientras vuela,
+     * se desvanecen de más viejos (transparentes) a más nuevos.
+     */
+    _drawTrail(ctx, trail) {
+      if (!trail || trail.length < 2) return;
+      ctx.save();
+      const n = trail.length;
+      for (let i = 0; i < n; i++) {
+        const p = trail[i];
+        const t = i / n;
+        const fade = t * t; // los más recientes destacan
+        ctx.globalAlpha = 0.65 * fade;
+        ctx.fillStyle = i % 2 === 0 ? '#8fd05f' : '#ffffff';
+        const r = 3 + 4 * fade;
         ctx.beginPath();
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fill();

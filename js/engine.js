@@ -73,13 +73,15 @@
       this.dragging = false;
       this.pull = new Vec2();
       this.trajectory = [];
+      this.trail = []; // estela de vuelo (posiciones recientes de la rana)
+      this._trailTimer = 0;
       this.frogSettledTimer = 0;
       this.time = 0;
       this._lastTime = performance.now();
       this._hudTimer = 0;
 
-      // Progreso
-      this.progress = { unlocked: 1, best: {} };
+      // Progreso (nivel desbloqueado + estrellas + récords de puntuación)
+      this.progress = { unlocked: 1, best: {}, scores: {} };
       this._loadProgress();
 
       // Enrutar eventos
@@ -109,7 +111,8 @@
           const p = JSON.parse(raw);
           this.progress = {
             unlocked: Math.max(1, p.unlocked || 1),
-            best: p.best || {}
+            best: p.best || {},
+            scores: p.scores || {}
           };
         }
       } catch (e) { /* sin almacenamiento */ }
@@ -196,6 +199,8 @@
       this.dragging = false;
       this.pull = new Vec2();
       this.trajectory = [];
+      this.trail = [];
+      this._trailTimer = 0;
       this.frogSettledTimer = 0;
       this.state = 'PLAYING';
 
@@ -319,6 +324,8 @@
       this.frogSettledTimer = 0;
       this.dragging = false;
       this.trajectory = [];
+      this.trail = [];
+      this._trailTimer = 0;
 
       // Efectos
       this.particles.dust(frog.position.x, frog.position.y + 20, 10);
@@ -335,6 +342,7 @@
       this.entities = this.entities.filter((e) => e !== frog);
       this.activeFrog = null;
       this.camera.stopFollow();
+      this.trail = []; // la estela muere con la rana
 
       if (reason === 'water') {
         this.particles.splash(frog.position.x, frog.position.y, 1);
@@ -361,6 +369,14 @@
     _updateFrogLifecycle(dt) {
       const frog = this.activeFrog;
       if (!frog) return;
+
+      // Estela de vuelo: guardar una posición cada ~0.03s (máx. 60)
+      this._trailTimer -= dt;
+      if (this._trailTimer <= 0) {
+        this._trailTimer = 0.03;
+        this.trail.push(frog.position.clone());
+        if (this.trail.length > 60) this.trail.shift();
+      }
 
       // ¿Cayó al mar?
       if (frog.position.y > CONFIG.WATER_KILL_Y) {
@@ -579,10 +595,17 @@
       }
       this.starsEarned = stars;
 
-      // Progreso
-      const best = this.progress.best[this.levelIndex] || 0;
-      if (stars > best) {
+      // Progreso: estrellas + récord de puntuación del nivel
+      const prevBest = this.progress.best[this.levelIndex] || 0;
+      if (stars > prevBest) {
         this.progress.best[this.levelIndex] = stars;
+      }
+      const prevScore = this.progress.scores[this.levelIndex] || 0;
+      const newRecord = this.score > prevScore;
+      if (newRecord) {
+        this.progress.scores[this.levelIndex] = this.score;
+      }
+      if (prevBest !== this.progress.best[this.levelIndex] || newRecord) {
         this._saveProgress();
       }
       if (this.levelIndex >= this.progress.unlocked && this.levelIndex < LevelLoader.getLevelCount()) {
@@ -602,7 +625,9 @@
             stars,
             best: this.progress.best,
             hasNext: this.levelIndex < LevelLoader.getLevelCount(),
-            level: this.levelIndex
+            level: this.levelIndex,
+            bestScore: this.progress.scores[this.levelIndex] || 0,
+            newRecord
           });
         }
       }, 700);
@@ -629,7 +654,8 @@
         frogsLeft: this.frogQueue + (this.activeFrog ? 1 : 0),
         stars: this.starsEarned,
         levelName: this.levelData ? this.levelData.name : '',
-        starGoal: this.starGoal || ''
+        starGoal: this.starGoal || '',
+        bestScore: this.progress.scores[this.levelIndex] || 0
       };
     }
 
@@ -705,7 +731,8 @@
         lighting: this.lighting,
         heldFrog: this.heldFrog,
         holdPosition: hold,
-        trajectory: this.trajectory
+        trajectory: this.trajectory,
+        trail: this.trail
       });
     }
   }
