@@ -206,3 +206,7 @@ navegador simulado para detectar errores en caliente.
 ---
 
 Hecho con 💛 y mucha física casera. ¡Buen lanzamiento, rana!
+
+---
+
+Powered by **Nativerse** 💛 · Dedicado a **Nati** 💛
