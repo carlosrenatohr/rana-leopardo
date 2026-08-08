@@ -292,6 +292,21 @@
         ctx.stroke();
       }
     }
+
+    /**
+     * Flash blanco al recibir un golpe. Vive en la clase base porque
+     * TODOS los bloques lo usan (antes solo estaba en WoodBlock y
+     * cristal/bambú/piedra rompían con "_drawHitFlash is not a function").
+     */
+    _drawHitFlash(ctx, w, h) {
+      if (this.hitFlash > 0) {
+        ctx.globalAlpha = this.hitFlash * 0.4;
+        ctx.fillStyle = '#ffffff';
+        roundRect(ctx, -w / 2, -h / 2, w, h, 5);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    }
   }
 
   /** Bloque de madera con vetas. */
@@ -332,16 +347,6 @@
       if (hpR < 0.5) this._drawCracks(ctx, 0.8);
       this._drawHitFlash(ctx, w, h);
       ctx.restore();
-    }
-
-    _drawHitFlash(ctx, w, h) {
-      if (this.hitFlash > 0) {
-        ctx.globalAlpha = this.hitFlash * 0.4;
-        ctx.fillStyle = '#ffffff';
-        roundRect(ctx, -w / 2, -h / 2, w, h, 5);
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
     }
   }
 
