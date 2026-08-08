@@ -174,7 +174,35 @@ cubierto por tests en `tools/`.
   nivel" / "¡Nuevo récord!"). Persistido en `localStorage` bajo la misma
   clave `rana-progress`.
 
-## 19. Los commits tenían el email incorrecto
+## 19. La rana no se sentía al chocar y el tiro tardaba en reiniciarse
+
+- **Síntoma**: el objeto lanzado "quedaba a medias sin rumbo" al impactar
+  (no se notaba el choque en la propia rana) y, tras quedar sin blancos,
+  la siguiente rana tardaba en salir.
+- **Causa**: restitución baja (0.35) + sin feedback visual propio en la
+  rana (solo los bloques parpadeaban) + `SETTLE_TIME` de 0.55 s.
+- **Arreglo**: restitución 0.42, pulso squash en la rana al impactar
+  (`impactPulse` decae en `update` y escala el dibujo) y `SETTLE_TIME`
+  reducido a 0.35 s para un reinicio ágil.
+
+## 20. El nombre del nivel tapaba el marcador de forma fija
+
+- **Síntoma**: el título (p. ej. "Fortaleza de Piedra") quedaba fijo
+  sobre las estrellas y el puntaje.
+- **Causa**: `.hud-name` sin auto-ocultarse y posicionado sobre la columna
+  central del HUD.
+- **Arreglo**: se reposiciona bajo la fila del HUD (no tapa estrellas/puntos)
+  y se auto-oculta con una transición a los ~3 s (clase `.hide` añadida por
+  un temporizador en `showHUD`).
+
+## 21. El mejor puntaje no se visualizaba
+
+- **Síntoma**: el best score se guardaba (localStorage) pero solo salía en
+  el HUD/victoria; no había forma de ver el récord por nivel de un vistazo.
+- **Arreglo**: `Engine.getBestScore(i)` + la tarjeta de cada nivel en el
+  selector muestra `🏆 puntaje` (solo si existe récord).
+
+## 22. Los commits tenían el email incorrecto
 
 - **Síntoma**: todos los commits llevaban `carlos@growthoptix.com` en vez
   del email real.

@@ -39,6 +39,10 @@
 - [ ] **Object pooling** de partículas (hoy se crean y destruyen por frame).
 - [ ] **Accesibilidad**: `prefers-reduced-motion`, contraste AA, aria-labels
       completos en botones.
+- [x] **Rebote de rana al impactar** (hecho: restitución 0.42 + pulso squash
+      visible; reinicio de tiro ágil con `SETTLE_TIME` 0.35 s).
+- [x] **Nombre de nivel auto-ocultable** (hecho: destaca 3 s y se desvanece;
+      reposicionado para no tapar estrellas/puntaje).
 - [ ] **Rebote de cámara** al volver a la resortera (ahora es instantáneo).
 - [ ] **Editor de niveles** en el navegador (JSON a partir de clics).
 - [ ] Traducción EN/ES del juego.
