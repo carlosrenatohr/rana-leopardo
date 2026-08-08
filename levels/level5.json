@@ -1,0 +1,34 @@
+{
+  "name": "La Caída del Coco",
+  "subtitle": "Coco arriba... ¡y mucho que defender!",
+  "width": 2400,
+  "frogs": 4,
+  "slingshot": { "x": 220, "y": 620 },
+  "stars": [1800, 2800, 3800],
+  "sunX": 980,
+  "sunY": 130,
+  "seed": 41,
+  "decorations": [
+    { "type": "palm", "x": 120, "y": 624, "scale": 1.2 },
+    { "type": "palm", "x": 840, "y": 624, "scale": 1.0 },
+    { "type": "palm", "x": 1820, "y": 624, "scale": 1.3 },
+    { "type": "flower", "x": 500, "y": 662, "scale": 1.1 },
+    { "type": "flower", "x": 730, "y": 668, "scale": 0.9 },
+    { "type": "flower", "x": 1600, "y": 656, "scale": 1.2 },
+    { "type": "rock", "x": 330, "y": 648, "scale": 1.0 },
+    { "type": "rock", "x": 2150, "y": 646, "scale": 1.6 }
+  ],
+  "objects": [
+    { "type": "bamboo-block", "x": 1020, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "bamboo-block", "x": 1020, "y": 545, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crab", "x": 1020, "y": 598 },
+    { "type": "stone-block", "x": 1140, "y": 590, "w": 60, "h": 60, "angle": 0 },
+    { "type": "stone-block", "x": 1220, "y": 590, "w": 60, "h": 60, "angle": 0 },
+    { "type": "wood-block", "x": 1180, "y": 530, "w": 140, "h": 40, "angle": 0 },
+    { "type": "coco", "x": 1180, "y": 484 },
+    { "type": "pufferfish", "x": 1180, "y": 596 },
+    { "type": "wood-block", "x": 1360, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "wood-block", "x": 1360, "y": 545, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crab", "x": 1360, "y": 598 }
+  ]
+}

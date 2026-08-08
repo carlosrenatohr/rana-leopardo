@@ -1,0 +1,30 @@
+{
+  "name": "Arrecife de Cristal",
+  "subtitle": "El cristal es frágil... ¡aprovecha!",
+  "width": 2400,
+  "frogs": 4,
+  "slingshot": { "x": 220, "y": 620 },
+  "stars": [1400, 2200, 2900],
+  "sunX": 900,
+  "sunY": 140,
+  "seed": 11,
+  "decorations": [
+    { "type": "palm", "x": 140, "y": 624, "scale": 0.9 },
+    { "type": "palm", "x": 960, "y": 624, "scale": 1.1 },
+    { "type": "palm", "x": 1650, "y": 624, "scale": 1.0 },
+    { "type": "flower", "x": 620, "y": 660, "scale": 1.1 },
+    { "type": "flower", "x": 780, "y": 668, "scale": 0.9 },
+    { "type": "flower", "x": 1500, "y": 654, "scale": 1.2 },
+    { "type": "rock", "x": 360, "y": 646, "scale": 1.1 },
+    { "type": "rock", "x": 2000, "y": 652, "scale": 1.4 }
+  ],
+  "objects": [
+    { "type": "crystal-block", "x": 1150, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crystal-block", "x": 1240, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crystal-block", "x": 1195, "y": 545, "w": 140, "h": 40, "angle": 0 },
+    { "type": "pufferfish", "x": 1210, "y": 596 },
+    { "type": "coco", "x": 1195, "y": 499 },
+    { "type": "wood-block", "x": 1380, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crab", "x": 1425, "y": 598 }
+  ]
+}

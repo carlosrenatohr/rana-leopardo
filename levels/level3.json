@@ -1,0 +1,32 @@
+{
+  "name": "Torre de Bambú",
+  "subtitle": "Una torre alta necesita un buen golpe",
+  "width": 2400,
+  "frogs": 4,
+  "slingshot": { "x": 220, "y": 620 },
+  "stars": [1600, 2500, 3400],
+  "sunX": 1120,
+  "sunY": 110,
+  "seed": 23,
+  "decorations": [
+    { "type": "palm", "x": 100, "y": 624, "scale": 1.1 },
+    { "type": "palm", "x": 900, "y": 624, "scale": 0.95 },
+    { "type": "palm", "x": 1750, "y": 624, "scale": 1.25 },
+    { "type": "flower", "x": 540, "y": 664, "scale": 1.0 },
+    { "type": "flower", "x": 760, "y": 658, "scale": 1.3 },
+    { "type": "flower", "x": 1550, "y": 666, "scale": 0.9 },
+    { "type": "rock", "x": 300, "y": 650, "scale": 0.9 },
+    { "type": "rock", "x": 2100, "y": 648, "scale": 1.5 }
+  ],
+  "objects": [
+    { "type": "bamboo-block", "x": 1150, "y": 590, "w": 60, "h": 60, "angle": 0 },
+    { "type": "bamboo-block", "x": 1150, "y": 530, "w": 60, "h": 60, "angle": 0 },
+    { "type": "bamboo-block", "x": 1150, "y": 470, "w": 60, "h": 60, "angle": 0 },
+    { "type": "coco", "x": 1150, "y": 414 },
+    { "type": "crab", "x": 1120, "y": 598 },
+    { "type": "wood-block", "x": 1040, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crab", "x": 1280, "y": 598 },
+    { "type": "crystal-block", "x": 1330, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "pufferfish", "x": 1370, "y": 596 }
+  ]
+}

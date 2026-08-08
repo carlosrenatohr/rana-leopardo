@@ -1,0 +1,30 @@
+{
+  "name": "Fortaleza de Piedra",
+  "subtitle": "La piedra aguanta... ¿y el cristal?",
+  "width": 2400,
+  "frogs": 4,
+  "slingshot": { "x": 220, "y": 620 },
+  "stars": [1400, 2200, 2950],
+  "sunX": 1000,
+  "sunY": 150,
+  "seed": 31,
+  "decorations": [
+    { "type": "palm", "x": 160, "y": 624, "scale": 1.0 },
+    { "type": "palm", "x": 820, "y": 624, "scale": 1.2 },
+    { "type": "palm", "x": 1700, "y": 624, "scale": 1.05 },
+    { "type": "flower", "x": 640, "y": 660, "scale": 1.2 },
+    { "type": "flower", "x": 1480, "y": 656, "scale": 1.0 },
+    { "type": "rock", "x": 350, "y": 646, "scale": 1.2 },
+    { "type": "rock", "x": 2050, "y": 650, "scale": 1.2 }
+  ],
+  "objects": [
+    { "type": "stone-block", "x": 1150, "y": 590, "w": 70, "h": 60, "angle": 0 },
+    { "type": "stone-block", "x": 1230, "y": 590, "w": 70, "h": 60, "angle": 0 },
+    { "type": "stone-block", "x": 1190, "y": 530, "w": 150, "h": 50, "angle": 0 },
+    { "type": "crystal-block", "x": 1190, "y": 480, "w": 40, "h": 50, "angle": 0 },
+    { "type": "crab", "x": 1190, "y": 598 },
+    { "type": "crab", "x": 1310, "y": 598 },
+    { "type": "wood-block", "x": 1400, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "coco", "x": 1460, "y": 594 }
+  ]
+}

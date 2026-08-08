@@ -1,0 +1,39 @@
+{
+  "name": "Castillo de la Isla",
+  "subtitle": "El gran final en Corn Island",
+  "width": 2400,
+  "frogs": 4,
+  "slingshot": { "x": 220, "y": 620 },
+  "stars": [2200, 3400, 4400],
+  "sunX": 1100,
+  "sunY": 120,
+  "seed": 53,
+  "decorations": [
+    { "type": "palm", "x": 100, "y": 624, "scale": 1.15 },
+    { "type": "palm", "x": 780, "y": 624, "scale": 1.0 },
+    { "type": "palm", "x": 1880, "y": 624, "scale": 1.35 },
+    { "type": "flower", "x": 560, "y": 660, "scale": 1.2 },
+    { "type": "flower", "x": 720, "y": 666, "scale": 0.9 },
+    { "type": "flower", "x": 1640, "y": 656, "scale": 1.1 },
+    { "type": "rock", "x": 320, "y": 648, "scale": 1.2 },
+    { "type": "rock", "x": 2200, "y": 646, "scale": 1.4 }
+  ],
+  "objects": [
+    { "type": "bamboo-block", "x": 980, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crab", "x": 1010, "y": 598 },
+    { "type": "stone-block", "x": 1090, "y": 590, "w": 60, "h": 60, "angle": 0 },
+    { "type": "stone-block", "x": 1170, "y": 590, "w": 60, "h": 60, "angle": 0 },
+    { "type": "stone-block", "x": 1250, "y": 590, "w": 60, "h": 60, "angle": 0 },
+    { "type": "stone-block", "x": 1170, "y": 530, "w": 180, "h": 50, "angle": 0 },
+    { "type": "stone-block", "x": 1090, "y": 500, "w": 60, "h": 60, "angle": 0 },
+    { "type": "stone-block", "x": 1250, "y": 500, "w": 60, "h": 60, "angle": 0 },
+    { "type": "wood-block", "x": 1170, "y": 500, "w": 180, "h": 40, "angle": 0 },
+    { "type": "coco", "x": 1170, "y": 454 },
+    { "type": "crab", "x": 1110, "y": 598 },
+    { "type": "crab", "x": 1230, "y": 598 },
+    { "type": "pufferfish", "x": 1500, "y": 596 },
+    { "type": "wood-block", "x": 1390, "y": 595, "w": 50, "h": 50, "angle": 0 },
+    { "type": "wood-block", "x": 1390, "y": 545, "w": 50, "h": 50, "angle": 0 },
+    { "type": "crab", "x": 1450, "y": 598 }
+  ]
+}
