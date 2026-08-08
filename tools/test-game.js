@@ -211,7 +211,7 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('estado PLAYING', engine.state === 'PLAYING');
   check('nivel 1 cargado', engine.levelIndex === 1 && !!engine.levelData);
   check('HUD visible', engine.ui.hud && engine.ui.hud.hidden === false);
-  check('HUD muestra objetivo de estrellas', /1200/.test(document.getElementById('hud-goal').textContent),
+  check('HUD muestra objetivo de estrellas', /900/.test(document.getElementById('hud-goal').textContent),
     document.getElementById('hud-goal').textContent);
   check('4 ranas en cola', engine.frogQueue === 4);
   check('rana en la resortera', !!engine.heldFrog);
@@ -231,6 +231,10 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('cola reducida a 3', engine.frogQueue === 3);
   const v0 = engine.activeFrog ? engine.activeFrog.velocity.length().toFixed(0) : '?';
   check('velocidad inicial sensible', engine.activeFrog && engine.activeFrog.velocity.length() > 500, v0 + ' px/s');
+
+  console.log('\n== C2. Estela de vuelo registrada ==');
+  for (let i = 0; i < 10; i++) runFrames(5);
+  check('estela de vuelo acumula posiciones', engine.trail.length > 3, engine.trail.length + ' pts');
 
   console.log('\n== D. Simular 8s de física (impacto en la torre) ==');
   for (let i = 0; i < 8; i++) {
@@ -259,8 +263,11 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('puntos incluyen bonus nivel', engine.score >= 500);
   check('progreso desbloquea nivel 2', engine.progress.unlocked === 2);
   check('mejor puntuación guardada', (engine.progress.best[1] || 0) >= 1, engine.progress.best[1]);
+  check('récord de puntuación guardado', engine.progress.scores[1] === engine.score, engine.progress.scores[1]);
   await new Promise((r) => setTimeout(r, 900));
   check('overlay de victoria visible', engine.ui.overlay.hidden === false);
+  check('victoria muestra récord del nivel', /récord/i.test(document.getElementById('overlay-record').textContent),
+    document.getElementById('overlay-record').textContent);
 
   console.log('\n== F. Derrota forzada ==');
   await engine.restartLevel();
@@ -279,6 +286,30 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   await engine.startLevel(2);
   check('nivel 2 cargado', engine.levelIndex === 2 && engine.state === 'PLAYING');
   check('nivel 2: 7 objetos', engine.entities.length === 7, engine.entities.map(e => e.entityType).join(','));
+
+  // Regresión: dibujar el cristal no debe romper (_drawHitFlash en la base)
+  const crystal = engine.entities.find((e) => e.entityType === 'crystal-block');
+  check('bloque cristal existe', !!crystal);
+  let drawOk = true;
+  try {
+    runFrames(10); // renderiza todos los objetos del nivel 2 (incluido cristal)
+  } catch (e) {
+    drawOk = false;
+  }
+  check('cristal se dibuja sin crash', drawOk);
+
+  // Regresión: morir un pez globo usa partículas.bubble (que ahora existe)
+  const puff = engine.entities.find((e) => e.entityType === 'pufferfish');
+  check('pez globo existe', !!puff);
+  let puffOk = true;
+  try {
+    engine._entityDied(puff, puff.position);
+  } catch (e) {
+    puffOk = false;
+  }
+  check('pez globo muere sin crash (bubble)', puffOk);
+  check('burbujas emitidas al morir', engine.particles.items.some((p) => p.type === 'bubble'));
+
   engine.showMenu();
   check('vuelta al menú', engine.state === 'MENU');
 
