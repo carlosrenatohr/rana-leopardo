@@ -294,10 +294,18 @@ html, body {
 .icon-btn:hover { transform: translateY(-2px) scale(1.06); background: #ffffff; }
 .icon-btn:active { transform: scale(0.92); }
 
+.icon-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+  filter: grayscale(0.6);
+}
+
 .hud-bottom {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-end;
+  gap: 8px;
   pointer-events: auto;
 }
 

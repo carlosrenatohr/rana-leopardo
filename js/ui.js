@@ -88,8 +88,8 @@
             </div>
           </div>
           <div class="hud-bottom">
-            <button class="btn btn-ghost" id="btn-restart">↻ Reiniciar</button>
-            <button class="btn btn-primary" id="btn-next" disabled>Siguiente ›</button>
+            <button class="icon-btn" id="btn-restart" title="Reiniciar nivel" aria-label="Reiniciar nivel">⟲</button>
+            <button class="icon-btn" id="btn-next" title="Siguiente nivel" aria-label="Siguiente nivel" disabled>⏭</button>
           </div>
           <div class="hud-fact" id="hud-fact" hidden>
             <div class="hud-fact-title" id="hud-fact-title"></div>
