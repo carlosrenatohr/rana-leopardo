@@ -27,6 +27,17 @@
     }
 
     NS.EngineInstance = new Engine({ canvas });
+
+    // La pantalla de carga desaparece cuando el motor ya pinta.
+    const splash = document.getElementById('splash');
+    if (splash) {
+      splash.classList.add('done');
+      setTimeout(() => {
+        if (typeof splash.remove === 'function') splash.remove();
+        else if (splash.parentNode) splash.parentNode.removeChild(splash);
+        else splash.style.display = 'none';
+      }, 700);
+    }
   }
 
   if (document.readyState === 'loading') {

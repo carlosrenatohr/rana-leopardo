@@ -3,12 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#dff0ff" />
+
+  <!-- ============ Identidad / PWA ============ -->
   <title>Rana Leopardo — Aventura en Corn Island</title>
-  <meta name="description" content="Juego inspirado en Angry Birds: lanza a la rana leopardo contra castillos de bloques en una isla caribeña pastel. HTML5 + Canvas, sin dependencias." />
+  <meta name="description" content="Juego inspirado en Angry Birds: lanza a la rana leopardo (Nati) contra castillos de bloques en Corn Island, Nicaragua. HTML5 + Canvas, sin dependencias. Juega online o instálalo como app." />
+  <meta name="theme-color" content="#DDF6EA" />
+  <meta name="application-name" content="Rana Leopardo" />
+
+  <!-- Favicon (navegador + acceso directo) -->
+  <link rel="icon" href="assets/icons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png" />
+
+  <!-- iOS / iPadOS (pantalla de inicio, barra de estado) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Rana Leopardo" />
+
+  <!-- PWA / Android (manifest) -->
+  <link rel="manifest" href="site.webmanifest" />
+
+  <!-- Compartir (Open Graph + Twitter) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:site_name" content="Rana Leopardo" />
+  <meta property="og:title" content="Rana Leopardo — Una aventura en Corn Island" />
+  <meta property="og:description" content="Lanza a la rana leopardo (Nati) contra los cangris en una isla caribeña pastel. Juego HTML5 + Canvas, sin dependencias. ¡Compártelo y desafía tu récord!" />
+  <meta property="og:url" content="https://rana-leopardo.pages.dev/" />
+  <meta property="og:image" content="assets/icons/icon-512.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Rana Leopardo — Una aventura en Corn Island" />
+  <meta name="twitter:description" content="Lanza a la rana leopardo (Nati) contra los cangris en Corn Island. HTML5 + Canvas, sin dependencias." />
+  <meta name="twitter:image" content="assets/icons/icon-512.png" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Pantalla de carga (splash): identidad al instante, se oculta al arrancar el motor -->
+  <div id="splash" aria-hidden="true">
+    <img src="assets/icons/favicon.svg" alt="" class="splash-frog" width="96" height="96" />
+    <div class="splash-name">Rana <span>Leopardo</span></div>
+    <div class="splash-sub">Una aventura en Corn Island</div>
+    <div class="splash-bar"><span></span></div>
+  </div>
+
   <!-- Canvas principal del juego -->
   <canvas id="game" aria-label="Juego Rana Leopardo"></canvas>
 
@@ -20,6 +61,9 @@
       Rana Leopardo necesita JavaScript para funcionar. Actívalo y recarga la página. 🐸
     </div>
   </noscript>
+
+  <!-- Registro del service worker (solo https; no afecta file://) -->
+  <script src="js/pwa.js"></script>
 
   <!-- Módulos en orden de dependencia (scripts clásicos: funciona con file://) -->
   <script src="js/utils.js"></script>

@@ -101,7 +101,20 @@
       this._buildMenuScene();
       this.ui.showMenu();
 
+      // Deep-link del manifest (shortcut "Jugar"): ?start=levelN
+      this._handleDeepLink();
+
       this._raf = requestAnimationFrame((t) => this._loop(t));
+    }
+
+    /* ================== DEEP-LINK / SHORTCUT PWA ================== */
+
+    _handleDeepLink() {
+      try {
+        if (!global.location || !global.location.search) return;
+        const m = /[?&]start=level(\d+)/.exec(global.location.search);
+        if (m) this.startLevel(Number(m[1]));
+      } catch (e) { /* sin navegador (tests) */ }
     }
 
     /* ================== PROGRESO ================== */

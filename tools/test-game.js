@@ -432,6 +432,26 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
   check('botón 🔍 re-muestra el recon', recon.hidden === false);
 
+  console.log('\n== J. Identidad visual y PWA ==');
+  // El splash debe marcarse como 'done' al arrancar el motor.
+  const splash = document.getElementById('splash');
+  check('splash marcado como done al arrancar', splash.classList.contains('done'));
+
+  const html = require('fs').readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  check('index.html enlaza el manifest', /rel="manifest"\s+href="site\.webmanifest"/.test(html));
+  check('index.html tiene apple-touch-icon', /rel="apple-touch-icon"/.test(html));
+  check('index.html tiene favicon SVG', /favicon\.svg/.test(html));
+  check('index.html tiene metadatos Open Graph', /property="og:image"/.test(html));
+  check('index.html registra el service worker', /js\/pwa\.js/.test(html));
+
+  const manifest = JSON.parse(require('fs').readFileSync(path.join(ROOT, 'site.webmanifest'), 'utf8'));
+  check('manifest es JSON válido', !!manifest.id && manifest.display === 'standalone');
+  check('manifest incluye icono maskable', manifest.icons.some((i) => i.purpose === 'maskable'));
+  check('manifest tiene shortcut "Jugar"', /start=level/.test(manifest.shortcuts[0].url));
+
+  const sw = require('fs').readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+  check('service worker existe y precachea la app shell', sw.includes('cache.addAll') && sw.includes('PRECACHE'));
+
   console.log('\n========================================');
   console.log(`RESULTADO: ${pass} ✓  ${fail} ✗`);
   console.log('========================================');

@@ -39,11 +39,15 @@ Todo se dibuja con vectores y Canvas. Funciona abriendo `index.html`.
 
 ```
 rana-leopardo/
-├── index.html              ← ¡Ábrelo y juega!
-├── style.css               ← Tema pastel Caribe (HUD, menús, overlays)
+├── index.html              ← ¡Ábrelo y juega! (favicons, manifest, OG, splash)
+├── style.css               ← Tema pastel Caribe (HUD, menús, overlays, splash)
+├── site.webmanifest        ← Manifest PWA (instalación, theme, shortcuts)
+├── sw.js                   ← Service worker (precache + offline)
 ├── README.md
+├── README_ICONS.md         ← Documentación de identidad visual y PWA
 ├── assets/
 │   ├── audio/              ← Arquitectura de audio (síntesis WebAudio)
+│   ├── icons/              ← Favicons + iconos PWA/iOS (generados del frog.svg)
 │   └── svg/                ← Vectores SVG (rana, resortera)
 ├── levels/
 │   ├── level1.json … level6.json   ← Niveles en JSON (fuente canónica)
@@ -62,6 +66,7 @@ rana-leopardo/
     ├── input.js            ← Entrada unificada (ratón/táctil/teclado)
     ├── ui.js               ← HUD, menús y overlays (DOM)
     ├── engine.js           ← Motor del juego (loop, estados, puntuación)
+    ├── pwa.js              ← Registro del service worker (solo https)
     └── game.js             ← Bootstrap
 ```
 
