@@ -367,7 +367,7 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('footer del menú acredita a Nativerse', /menu-footer[\s\S]*Nativerse/.test(uiSrc) && /Nativerse/.test(NS.Content.menu.footer + ' Nativerse'));
   check('footer del menú incluye "Desarrollado por"', NS.Content.menu.footer === 'Desarrollado por');
 
-  // Curiosidad por nivel en la victoria
+  // La curiosidad NO se muestra en la victoria (solo al inicio y con 💡)
   engine.ui.showVictory({
     score: 1600,
     stars: 2,
@@ -378,9 +378,8 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
     newRecord: false
   });
   const factEl = document.getElementById('overlay-fact');
-  check('victoria muestra la curiosidad del nivel',
-    factEl.hidden === false && /arrecif/i.test(document.getElementById('overlay-fact-text').textContent),
-    document.getElementById('overlay-fact-text').textContent);
+  check('victoria no muestra la curiosidad (ocupa espacio)',
+    factEl.hidden === true);
 
   // Último nivel: botón de final y modal con el cierre del juego
   engine.ui.showVictory({

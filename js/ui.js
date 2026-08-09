@@ -350,16 +350,9 @@
       $('overlay-info').textContent = isPerfect
         ? CONTENT.victory.perfectLine
         : CONTENT.victory.line;
-      // Curiosidad del nivel superado (mensajes "entre niveles")
-      const fact = CONTENT.levels[level - 1];
-      const factEl = $('overlay-fact');
-      if (fact) {
-        factEl.hidden = false;
-        $('overlay-fact-title').textContent = fact.title;
-        $('overlay-fact-text').textContent = fact.text;
-      } else {
-        factEl.hidden = true;
-      }
+      // Curiosidad NO se muestra en la victoria: ocupa demasiado. Solo
+      // aparece al iniciar nivel y con el botón 💡 del HUD.
+      $('overlay-fact').hidden = true;
       // Récord del nivel (best score en localStorage)
       const rec = $('overlay-record');
       if (bestScore > 0) {
