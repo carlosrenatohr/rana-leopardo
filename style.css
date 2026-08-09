@@ -953,8 +953,52 @@ html, body {
 }
 
 @media (max-height: 560px) {
+  .menu { overflow-y: auto; }
   .menu-hero { display: none; }
   .menu { gap: 8px; }
   .level-select { grid-template-columns: repeat(6, 1fr); max-width: 640px; }
   .menu-hint { display: none; }
+}
+
+/* Móviles modernos en vertical (Galaxy S22+ 360-384px, iPhone 13+ 390-430px,
+ * alturas ≈780-930px): el HUD envuelve en dos filas y el menú se compacta
+ * para que todo quepa sin cortes. */
+@media (orientation: portrait) and (max-width: 470px) {
+  .hud-top {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .hud-center {
+    order: 3;
+    flex-basis: 100%;
+    flex-direction: row;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .hud-center .hud-goal { display: none; }
+  .hud-center .hud-best { font-size: 10px; }
+  .hud-name { top: calc(150px + env(safe-area-inset-top)); font-size: 12.5px; }
+  .hud-fact { top: calc(188px + env(safe-area-inset-top)); max-width: 92vw; }
+  .recon { bottom: calc(90px + env(safe-area-inset-bottom)); width: 94vw; }
+
+  .menu { gap: 10px; padding: 14px; }
+  .menu-hero { width: 110px; height: auto; }
+  .menu-hero svg { width: 110px; height: auto; }
+  .menu-title { font-size: clamp(30px, 8vw, 42px); }
+  .menu-subtitle { font-size: clamp(12.5px, 3.4vw, 15px); padding: 6px 14px; }
+  .level-select { grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 340px; }
+  .menu-hint { display: none; }
+
+  .overlay-card { max-width: 92vw; padding: 20px 16px; max-height: 86vh; overflow-y: auto; }
+  .rotate-hint { bottom: calc(60px + env(safe-area-inset-bottom)); font-size: 12px; padding: 7px 14px; }
+  .rotate-hint p { font-size: 12px; }
+}
+
+/* Alturas muy justas en vertical (S22 360x780 aprox.) */
+@media (orientation: portrait) and (max-height: 700px) {
+  .menu-hero { display: none; }
+  .menu { gap: 8px; }
+  .level-select { grid-template-columns: repeat(6, 1fr); max-width: 420px; }
+  .menu-hint, .menu-toggles { display: none; }
 }
