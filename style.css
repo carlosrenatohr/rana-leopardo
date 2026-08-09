@@ -727,6 +727,32 @@ html, body {
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
+  align-items: center;
+}
+
+/* Botones de acción del overlay de victoria/derrota: iconos grandes
+ * (⟲ reintentar, ⏭ siguiente, 🎉 final) que repiten los del HUD. */
+.overlay-icon-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  font-size: 24px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.16s ease, background 0.16s ease;
+}
+
+.overlay-icon-btn:hover { transform: translateY(-2px) scale(1.06); background: #ffffff; }
+.overlay-icon-btn:active { transform: scale(0.92); }
+
+/* Zoom de la lupita 🔍 activo (doble toque): botón resaltado */
+.icon-btn.active {
+  background: linear-gradient(180deg, #ffd9a0, #ffb03a);
+  box-shadow: 0 0 0 3px rgba(255, 176, 58, 0.55);
 }
 
 /* Curiosidad del nivel superado (mensajes "entre niveles") */
@@ -961,25 +987,38 @@ html, body {
 }
 
 /* Móviles modernos en vertical (Galaxy S22+ 360-384px, iPhone 13+ 390-430px,
- * alturas ≈780-930px): el HUD envuelve en dos filas y el menú se compacta
- * para que todo quepa sin cortes. */
+ * alturas ≈780-930px): el HUD se compacta para que TODO quepa en UNA sola
+ * fila (chip de nivel + puntaje/estrellas + ranas + botones), sin wrap:
+ * garantiza el mismo orden visual con 4 vidas que con 3. */
 @media (orientation: portrait) and (max-width: 470px) {
   .hud-top {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
+    gap: 5px;
   }
   .hud-center {
-    order: 3;
-    flex-basis: 100%;
+    order: 0;
+    flex-basis: auto;
     flex-direction: row;
     justify-content: center;
-    gap: 8px;
-    margin-top: 2px;
+    gap: 5px;
+    margin-top: 0;
+    min-width: 0;
   }
-  .hud-center .hud-goal { display: none; }
-  .hud-center .hud-best { font-size: 10px; }
-  .hud-name { top: calc(150px + env(safe-area-inset-top)); font-size: 12.5px; }
-  .hud-fact { top: calc(188px + env(safe-area-inset-top)); max-width: 92vw; }
+  .hud-center .hud-goal,
+  .hud-center .hud-best { display: none; }
+  .chip { padding: 4px 9px; gap: 5px; }
+  .chip-label { display: none; }
+  .chip-value { font-size: 13px; }
+  .score-box { font-size: 12px; padding: 4px 9px; gap: 5px; }
+  .star { font-size: 15px; }
+  .hud-right { gap: 4px; }
+  .frogs-left { gap: 1px; padding: 4px 6px; }
+  .frogs-left .frog-icon { width: 15px; height: 14px; }
+  .hud .icon-btn,
+  .hud-bottom .icon-btn { width: 30px; height: 30px; font-size: 13px; }
+  .hud-name { top: calc(96px + env(safe-area-inset-top)); font-size: 12.5px; }
+  .hud-fact { top: calc(134px + env(safe-area-inset-top)); max-width: 92vw; }
   .recon { bottom: calc(90px + env(safe-area-inset-bottom)); width: 94vw; }
 
   .menu { gap: 10px; padding: 14px; }

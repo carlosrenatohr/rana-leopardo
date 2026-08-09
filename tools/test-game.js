@@ -254,6 +254,25 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   for (let i = 0; i < 10; i++) runFrames(5);
   check('estela de vuelo acumula posiciones', engine.trail.length > 3, engine.trail.length + ' pts');
 
+  // Foco de cámara en vuelo: la cámara SÍGUE a la rana lanzada y la
+  // mantiene a la vista (~35% del ancho del viewport) para ver la
+  // trayectoria según ángulo/fuerza por delante. El stub reporta
+  // 1280x720 → visibleW = 1280 y la rana vuela hacia la derecha.
+  let frogInView = true;
+  let frogScreenX = -1;
+  for (let i = 0; i < 8 && engine.activeFrog; i++) {
+    runFrames(5);
+    const f = engine.activeFrog;
+    const vw = engine.camera.visibleW;
+    frogScreenX = (f.position.x - engine.camera.x) / vw;
+    if (frogScreenX < 0 || frogScreenX > 0.9) frogInView = false;
+  }
+  check('cámara sigue a la rana lanzada (sigue al objetivo)', engine.camera.followBody === engine.activeFrog || engine.activeFrog === null);
+  check('rana visible en el viewport durante el vuelo', frogInView,
+    'frac=' + frogScreenX.toFixed(2) + ' cam.x=' + engine.camera.x.toFixed(0) + ' frog.x=' + (engine.activeFrog ? engine.activeFrog.position.x.toFixed(0) : 'consumida'));
+  check('rana foco a ~35% del ancho del viewport', frogInView && Math.abs(frogScreenX - 0.35) < 0.25,
+    'frac=' + frogScreenX.toFixed(2));
+
   console.log('\n== D. Simular 8s de física (impacto en la torre) ==');
   for (let i = 0; i < 8; i++) {
     runFrames(60);
@@ -286,6 +305,14 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('overlay de victoria visible', engine.ui.overlay.hidden === false);
   check('victoria muestra récord del nivel', /récord/i.test(document.getElementById('overlay-record').textContent),
     document.getElementById('overlay-record').textContent);
+  // Los botones de acción del overlay usan iconos (⟲ reintentar, ⏭
+  // siguiente), igual que los del HUD — no texto largo. El stub del DOM
+  // no parsea innerHTML, así que se verifica el template en la fuente.
+  const uiSrc2 = require('fs').readFileSync(path.join(ROOT, 'js/ui.js'), 'utf8');
+  check('overlay: botón reintentar es icono (⟲)', new RegExp(
+    'btn-overlay-restart[^>]*>\\s*⟲\\s*<\\/button>').test(uiSrc2));
+  check('overlay: botón siguiente es icono (⏭)', new RegExp(
+    'btn-overlay-next[^>]*>\\s*⏭\\s*<\\/button>').test(uiSrc2));
 
   console.log('\n== F. Derrota forzada ==');
   await engine.restartLevel();
@@ -433,9 +460,32 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('recon contiene posiciones de enemigos', /[\u{1F980}\u{1F9A5}\u{1F965}]/u.test(engine.ui.reconTrack.innerHTML),
     engine.ui.reconTrack.innerHTML);
   document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
-  check('botón 🔍 oculta el recon', recon.hidden === true);
+  await new Promise((r) => setTimeout(r, 400)); // espera el toque único (350 ms)
+  check('botón 🔍 (un toque) oculta el recon', recon.hidden === true);
   document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
-  check('botón 🔍 re-muestra el recon', recon.hidden === false);
+  await new Promise((r) => setTimeout(r, 400));
+  check('botón 🔍 (un toque) re-muestra el recon', recon.hidden === false);
+
+  // Doble toque en la lupita: toggle de ZOOM sobre los cangris (feature
+  // nuevo): activa el zoom y lo desactiva de vuelta.
+  check('zoom de cangris inactivo por defecto', engine.enemyZoom === false);
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  await new Promise((r) => setTimeout(r, 50));
+  check('doble toque activa el zoom de cangris', engine.enemyZoom === true,
+    'enemyZoom=' + engine.enemyZoom);
+  check('vista de cangris con zoom > 1', engine.camera.targetZoom > 1,
+    'zoom=' + engine.camera.targetZoom.toFixed(2));
+  runFrames(30);
+  check('cámara enfoca el centro de masa de los cangris vivos',
+    engine.camera.targetX > engine.levelData.width / 4,
+    'targetX=' + engine.camera.targetX.toFixed(0));
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  await new Promise((r) => setTimeout(r, 50));
+  check('doble toque desactiva el zoom y vuelve a la resortera',
+    engine.enemyZoom === false && engine.camera.targetZoom === 1,
+    'enemyZoom=' + engine.enemyZoom + ' zoom=' + engine.camera.targetZoom);
 
   console.log('\n== I.b. Aviso de rotación (solo horizontal) ==');
   const rotateHint = document.getElementById('rotate-hint');
