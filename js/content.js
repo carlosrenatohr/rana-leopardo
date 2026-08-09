@@ -69,14 +69,24 @@
       ]
     },
 
-    /* ---------- Mensajes entre niveles (1..6) ---------- */
-    levels: [
+    /* ---------- Banco de curiosidades (Corn Island, Caribe, ranas) ----------
+     * Se muestra uno distinto al iniciar cada nivel (barajado, sin repetir
+     * el último visto). Se irá alimentando con más mensajes. */
+    facts: [
       { title: '🌴 Descubriendo Corn Island', text: 'Corn Island es un pequeño paraíso del Caribe nicaragüense. Sus playas de arena blanca, aguas cristalinas y arrecifes de coral albergan una gran diversidad de vida.' },
       { title: '🐸 Las ranas son importantes', text: 'Las ranas ayudan a mantener el equilibrio natural alimentándose de insectos. Además, su presencia suele indicar que el agua y el ambiente están saludables.' },
       { title: '🌊 Los arrecifes', text: 'Los arrecifes de coral ayudan a proteger las costas del oleaje y sirven de hogar para cientos de especies marinas. Son uno de los ecosistemas más valiosos del Caribe.' },
       { title: '🌿 Los humedales', text: 'Los humedales son fundamentales para muchas especies. Las ranas necesitan agua limpia para reproducirse y sobrevivir.' },
       { title: '🌴 Los manglares', text: 'Los manglares funcionan como viveros naturales para peces, aves y muchas otras especies. También ayudan a proteger las costas durante tormentas.' },
-      { title: '🦀 Todos forman parte', text: 'Cangrejos, aves, peces, ranas y plantas forman parte del mismo ecosistema. Cada especie cumple una función importante.' }
+      { title: '🦀 Todos forman parte', text: 'Cangrejos, aves, peces, ranas y plantas forman parte del mismo ecosistema. Cada especie cumple una función importante.' },
+      { title: '🏝️ Little Corn Island', text: 'Corn Island tiene una hermana pequeña: Little Corn Island. Sin carreteras, se recorre a pie, en bicicleta o en lancha, rodeada de playas y arrecifes.' },
+      { title: '🐠 Un mar de vida', text: 'Las aguas de Corn Island son famosas por su claridad y por albergar tortugas, rayas, delfines y cientos de peces de colores entre los corales.' },
+      { title: '🤿 Buceo y snorkel', text: 'Corn Island es uno de los mejores destinos del Caribe centroamericano para bucear. Sus arrecifes dejan ver un mundo submarino lleno de vida.' },
+      { title: '🦎 ¿Por qué leopardo?', text: 'La rana leopardo recibe su nombre por las manchas oscuras que decoran su piel, muy parecidas a las del felino. ¡Cada patrón es único!' },
+      { title: '🐸 Nati en el agua', text: 'Las ranas leopardo viven cerca del agua y se lanzan en grandes saltos al sentirse en peligro. Por eso a Nati le encanta saltar tan lejos.' },
+      { title: '☕ El corazón del Caribe', text: 'Nicaragua tiene una larga costa caribeña con islas, arrecifes y selvas tropicales. Corn Island es una de sus joyas más preciadas.' },
+      { title: '🌅 Una isla tranquila', text: 'En Corn Island la vida es tranquila: pesca, paseos en lancha, hamacas y atardeceres sobre el mar Caribe. Un lugar perfecto para la naturaleza.' },
+      { title: '🌴 Cocoteros por doquier', text: 'Corn Island también es conocida como la isla de los cocos: miles de palmeras cubren sus playas y los cocos forman parte de la vida diaria.' }
     ],
 
     /* ---------- Mensajes de victoria ---------- */

@@ -409,12 +409,18 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   menuBtn.dispatchEvent({ type: 'click' });
   check('botón del HUD vuelve al menú', engine.state === 'MENU' && engine.ui.hud.hidden === true);
 
-  // Curiosidad transitoria al entrar al nivel
+  // Curiosidad transitoria al entrar al nivel (viene del banco barajado)
   await engine.startLevel(2);
   const fact = document.getElementById('hud-fact');
   check('curiosidad visible al iniciar nivel', fact && fact.hidden === false);
-  check('curiosidad muestra el texto del nivel', /ranas/.test(document.getElementById('hud-fact-text').textContent),
-    document.getElementById('hud-fact-text').textContent);
+  const bankTitles = NS.Content.facts.map((f) => f.title);
+  check('curiosidad viene del banco de hechos',
+    bankTitles.includes(document.getElementById('hud-fact-title').textContent),
+    document.getElementById('hud-fact-title').textContent);
+  // El siguiente fact del banco no repite el último mostrado
+  const first = engine.ui._nextFact();
+  const second = engine.ui._nextFact();
+  check('la baraja no repite el fact inmediatamente anterior', first !== second);
   // Reabrir/cerrar con el botón 💡
   document.getElementById('btn-hud-fact').dispatchEvent({ type: 'click' });
   check('botón 💡 oculta la curiosidad', fact.classList.contains('hide'));

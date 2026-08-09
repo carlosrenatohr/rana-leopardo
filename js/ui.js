@@ -441,9 +441,9 @@
       this.showRecon(true);
     }
 
-    /** Rellena y muestra la curiosidad del nivel actual (transitoria). */
+    /** Rellena y muestra una curiosidad del banco (transitoria). */
     _showFact(level) {
-      const fact = CONTENT.levels[level - 1];
+      const fact = this._nextFact();
       this.factChip.hidden = true;
       this.factChip.classList.remove('hide');
       clearTimeout(this._factTimer);
@@ -453,6 +453,30 @@
         this.factChip.hidden = false;
         this._factTimer = setTimeout(() => this.factChip.classList.add('hide'), 4500);
       }
+    }
+
+    /**
+     * Baraja el banco de curiosidades y devuelve la siguiente, evitando
+     * repetir la inmediatamente anterior (la baraja se rearma al agotarse).
+     */
+    _nextFact() {
+      const bank = CONTENT.facts || [];
+      if (!bank.length) return null;
+      if (!this._factDeck || this._factDeck.length === 0) {
+        const deck = bank.slice();
+        for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        // Si el primer fact de la nueva baraja repite el último mostrado,
+        // lo movemos al final para que nunca se vea dos veces seguidas.
+        if (deck.length > 1 && deck[0] === this._lastFact) {
+          deck.push(deck.shift());
+        }
+        this._factDeck = deck;
+      }
+      this._lastFact = this._factDeck.pop();
+      return this._lastFact;
     }
 
     /** Muestra/oculta la curiosidad del nivel actual (botón 💡). */
