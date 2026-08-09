@@ -133,10 +133,10 @@
             </div>
             <div class="overlay-record" id="overlay-record"></div>
             <div class="overlay-buttons">
-              <button class="btn btn-ghost" id="btn-overlay-menu">Menú</button>
-              <button class="btn btn-primary" id="btn-overlay-restart">↻ Reintentar</button>
-              <button class="btn btn-primary" id="btn-overlay-final" hidden>🎉 Ver final</button>
-              <button class="btn btn-primary" id="btn-overlay-next" hidden>Siguiente ›</button>
+              <button class="btn btn-ghost" id="btn-overlay-menu">🏠 Menú</button>
+              <button class="icon-btn overlay-icon-btn" id="btn-overlay-restart" title="Reintentar nivel" aria-label="Reintentar nivel">⟲</button>
+              <button class="icon-btn overlay-icon-btn" id="btn-overlay-final" hidden title="Ver final" aria-label="Ver final">🎉</button>
+              <button class="icon-btn overlay-icon-btn" id="btn-overlay-next" hidden title="Siguiente nivel" aria-label="Siguiente nivel">⏭</button>
             </div>
           </div>
         </div>
@@ -211,7 +211,29 @@
       this.factChip = $('hud-fact');
       $('btn-hud-menu').addEventListener('click', () => this.engine.showMenu());
       $('btn-hud-fact').addEventListener('click', () => this.toggleFact());
-      $('btn-hud-recon').addEventListener('click', () => this.toggleRecon());
+      // Botón 🔍 (lupita): un toque = mini-mapa de cangris; dos toques
+      // seguidos = toggle de zoom sobre los cangris rivales para planear
+      // el siguiente lanzamiento con más precisión.
+      let reconTaps = 0;
+      let reconTapTimer = null;
+      $('btn-hud-recon').addEventListener('click', () => {
+        reconTaps++;
+        clearTimeout(reconTapTimer);
+        reconTapTimer = null;
+        if (reconTaps >= 2) {
+          // Doble toque: zoom sobre los cangris (toggle)
+          reconTaps = 0;
+          this.engine.toggleEnemyZoom();
+          const reconBtn = $('btn-hud-recon');
+          if (reconBtn) reconBtn.classList.toggle('active', !!this.engine.enemyZoom);
+          return;
+        }
+        // Un toque: mini-mapa de cangris (tras un breve periodo de espera)
+        reconTapTimer = setTimeout(() => {
+          reconTaps = 0;
+          this.toggleRecon();
+        }, 350);
+      });
 
       const soundBtn = $('btn-sound');
       const menuSound = $('btn-menu-sound');
