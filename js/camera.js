@@ -36,7 +36,7 @@
       // Seguimiento
       this.followBody = null;
       this.lookAhead = new Vec2(260, -40);
-      this.followLerp = 6; // velocidad de interpolación (1/s)
+      this.followLerp = 9; // velocidad de interpolación (1/s)
 
       // Vibración
       this.shake = 0;
@@ -137,13 +137,21 @@
       const viewW = this.visibleW / this.zoom;
       const viewH = this.visibleH / this.zoom;
 
-      // Seguimiento del objetivo con anticipación
+      // Seguimiento del objetivo con anticipación (prioridad de foco:
+      // la rana lanzada y su trayectoria, no la resortera).
+      //
+      // El léad de velocidad se compensa con el propio lerp: si la
+      // cámara avanza a `velocity * k` y el lerp la acerca con tasa
+      // followLerp, el retraso estacionario es velocity/followLerp, así
+      // que sumárselo al target anula el retraso y la rana se mantiene
+      // fija en ~35% del ancho del viewport durante todo el vuelo,
+      // dejando ~65% delante para ver la trayectoria según ángulo/fuerza.
       if (this.followBody) {
         const c = this.followBody.getWorldCenter();
-        const vx = this.followBody.velocity.x * 0.4;
-        const vy = this.followBody.velocity.y * 0.15;
-        this.targetX = c.x - viewW * 0.4 + this.lookAhead.x * 0.35 + vx;
-        this.targetY = c.y - viewH * 0.5 + this.lookAhead.y + vy;
+        const vx = this.followBody.velocity.x / this.followLerp;
+        const vy = this.followBody.velocity.y / Math.max(2.5, this.followLerp * 0.5);
+        this.targetX = c.x - viewW * 0.35 + this.lookAhead.x * 0.15 + vx;
+        this.targetY = c.y - viewH * 0.45 + this.lookAhead.y * 0.3 + vy;
       }
 
       // Interpolación crítica del punto de vista
