@@ -836,52 +836,6 @@ html, body {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Aviso de rotación NO bloqueante: pastilla flotante que no
- * intercepta clics (pointer-events: none) y se auto-oculta. */
-.rotate-hint {
-  position: absolute;
-  bottom: calc(76px + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%) translateY(14px);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 2px solid rgba(255, 140, 148, 0.35);
-  border-radius: 999px;
-  box-shadow: var(--shadow);
-  padding: 8px 18px;
-  z-index: 30;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  white-space: nowrap;
-  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0s linear 0.4s;
-}
-
-.rotate-hint.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.rotate-icon {
-  font-size: 22px;
-  animation: rotateHint 1.6s ease-in-out infinite;
-}
-
-@keyframes rotateHint {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(90deg); }
-}
-
-.rotate-hint p {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--ink);
-}
-
 /* ============================================================
  * Responsive
  * ============================================================ */
