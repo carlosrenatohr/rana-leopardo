@@ -864,6 +864,31 @@ html, body {
 /* ============================================================
  * Responsive
  * ============================================================ */
+
+/* Vertical (juego en portrait): los botones secundarios del HUD se
+ * agrupan junto a las vidas con un tono translúcido que no tapa el
+ * ambiente, y el marcador central se compacta. */
+@media (orientation: portrait) {
+  .hud-top { align-items: flex-start; gap: 6px; }
+  .hud-right { gap: 6px; }
+  .frogs-left {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    box-shadow: none;
+  }
+  .hud .icon-btn {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    box-shadow: none;
+  }
+  .icon-btn:hover { background: rgba(255, 255, 255, 0.85); }
+  .chip { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); box-shadow: none; }
+  .score-box { background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); box-shadow: none; }
+  .hud-bottom { justify-content: flex-end; }
+}
+
 @media (max-width: 720px) {
   .chip-value { font-size: 13px; }
   .chip { padding: 5px 11px; }
