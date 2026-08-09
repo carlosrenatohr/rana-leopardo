@@ -51,6 +51,7 @@
       this.menu = null;
       this.overlay = null;
       this.toast = null;
+      this.rotateHint = null;
       this.modal = null;
       this.modalBody = null;
       this.modalTitleEl = null;
@@ -154,6 +155,14 @@
           </div>
         </div>
 
+        <!-- AVISO ROTACIÓN (no bloqueante): solo al jugar en horizontal,
+         recomienda girar a vertical. Se auto-oculta y nunca intercepta
+         la entrada (pointer-events: none en CSS). -->
+        <div class="rotate-hint" id="rotate-hint">
+          <div class="rotate-icon">📱</div>
+          <p>Consejo: gira el dispositivo para jugar en vertical</p>
+        </div>
+
         <!-- TOAST -->
         <div class="toast" id="toast" hidden></div>
       `;
@@ -163,6 +172,7 @@
       this.menu = root.querySelector('#menu');
       this.overlay = root.querySelector('#overlay');
       this.toast = root.querySelector('#toast');
+      this.rotateHint = root.querySelector('#rotate-hint');
 
       this._bindEvents();
     }
@@ -230,6 +240,27 @@
         syncSoundIcons();
       });
       this._syncSoundIcons = syncSoundIcons;
+
+      // Aviso de rotación NO bloqueante: el juego es vertical, así que
+      // solo se sugiere girar cuando la pantalla está en horizontal.
+      // Se auto-oculta a los pocos segundos y jamás intercepta la
+      // entrada (pointer-events: none en CSS).
+      const checkRotate = () => {
+        const landscape = window.innerWidth > window.innerHeight;
+        this.rotateHint.classList.toggle('show', landscape);
+        clearTimeout(this._rotateTimer);
+        if (landscape) {
+          this._rotateTimer = setTimeout(() => {
+            this.rotateHint.classList.remove('show');
+          }, 6000);
+        }
+      };
+      window.addEventListener('resize', checkRotate);
+      window.addEventListener('pointerdown', () => {
+        this.rotateHint.classList.remove('show');
+        clearTimeout(this._rotateTimer);
+      });
+      checkRotate();
     }
 
     /* ================== ESTADOS DE PANTALLA ================== */

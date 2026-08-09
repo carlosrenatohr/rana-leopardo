@@ -437,6 +437,16 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
   check('botón 🔍 re-muestra el recon', recon.hidden === false);
 
+  console.log('\n== I.b. Aviso de rotación (solo horizontal) ==');
+  const rotateHint = document.getElementById('rotate-hint');
+  // El stub reporta 1280x720 (horizontal) → la sugerencia debe verse
+  check('aviso de girar visible en horizontal', rotateHint.classList.contains('show'));
+  // Simular paso a vertical (height > width) → se oculta
+  global.window.innerHeight = 900;
+  global.window.innerWidth = 420;
+  global.window.dispatchEvent({ type: 'resize' });
+  check('aviso oculto en vertical', !rotateHint.classList.contains('show'));
+
   console.log('\n== J. Identidad visual y PWA ==');
   // El splash debe marcarse como 'done' al arrancar el motor.
   const splash = document.getElementById('splash');
