@@ -81,6 +81,7 @@
       this._lastTime = performance.now();
       this._hudTimer = 0;
       this.previewT = 0; // temporizador del flyover de cámara (0 = off)
+      this.enemyZoom = false; // zoom de cámara sobre los cangris (lupita 🔍 x2)
 
       // Progreso (nivel desbloqueado + estrellas + récords de puntuación)
       this.progress = { unlocked: 1, best: {}, scores: {} };
@@ -160,7 +161,7 @@
       }
     }
 
-    /** Posiciones de los enemigos del nivel actual (para el panel "recon"). */
+    /** Posiciones de los enemigos definidos en el nivel (panel "recon"). */
     getEnemySpots() {
       const spots = [];
       for (const def of (this.levelData && this.levelData.objects) || []) {
@@ -169,6 +170,15 @@
         }
       }
       return spots;
+    }
+
+    /**
+     * Centros de masa de los ENEMIGOS VIVOS (no los del nivel estático).
+     * Usado por el zoom de la lupita 🔍 para seguir a los cangris que
+     * quedan en pie.
+     */
+    getLiveEnemies() {
+      return this.entities.filter((e) => e.isEnemy && !e.dead);
     }
 
     getWorldWidth() {
@@ -202,6 +212,7 @@
 
     showMenu() {
       this.state = 'MENU';
+      this.enemyZoom = false;
       this.input.setEnabled(false);
       this._buildMenuScene();
       this.camera.setBounds(0, 2400, 0, 720);
@@ -233,6 +244,7 @@
       this.score = 0;
       this.starsEarned = 0;
       this.enemyCount = 0;
+      this.enemyZoom = false;
       this.frogQueue = data.frogs || 1;
       this.activeFrog = null;
       this.heldFrog = null;
@@ -331,6 +343,59 @@
       this.camera.targetX = 0;
       this.camera.targetY = 0;
       this.camera.setZoom(1);
+    }
+
+    /**
+     * Toggle de la lupita 🔍 (doble toque): acerca la cámara al centro de
+     * masa de los cangris VIVOS para planear el siguiente lanzamiento.
+     * Al desactivar, la cámara vuelve a la resortera (vista inicial).
+     */
+    toggleEnemyZoom() {
+      if (this.state !== 'PLAYING') return;
+      this._skipPreview();
+      this.enemyZoom = !this.enemyZoom;
+      if (this.enemyZoom) {
+        const live = this.getLiveEnemies();
+        if (live.length === 0) {
+          this.enemyZoom = false;
+          this.ui.showToast('No quedan cangris a la vista 🎉');
+          return;
+        }
+        // Foco: usa el centro de masa y mantiene el zoom activo; la
+        // actualización por frame sigue a los cangris que quedan (ver
+        // _updateEnemyZoom) y se cancela al reanudar con un drag.
+        this.camera.setZoom(1.5);
+      } else {
+        this.camera.stopFollow();
+        this.camera.setZoom(1);
+        this.camera.targetX = 0;
+        this.camera.targetY = 0;
+      }
+      this.audio.play('click');
+      this._updateHUDSoon();
+    }
+
+    /** Sigue a los cangris vivos mientras el zoom de la lupita está activo. */
+    _updateEnemyZoom() {
+      const live = this.getLiveEnemies();
+      if (live.length === 0) {
+        this.enemyZoom = false;
+        this.camera.setZoom(1);
+        this.camera.targetX = 0;
+        this.camera.targetY = 0;
+        return;
+      }
+      let cx = 0;
+      for (const e of live) cx += e.position.x;
+      cx /= live.length;
+      const zoom = 1.5;
+      this.camera.stopFollow();
+      this.camera.setZoom(zoom);
+      // Encuadra el centro de masa de los cangris en el centro del viewport
+      const wantX = cx - this.camera.visibleW / (2 * zoom);
+      const wantY = 480 - this.camera.visibleH / (2 * zoom);
+      this.camera.targetX = wantX;
+      this.camera.targetY = wantY;
     }
 
     /** Avanza el paneo de cámara (se llama cada frame mientras previewT > 0). */
@@ -517,6 +582,12 @@
 
     _onDragStart(worldPos) {
       this._skipPreview(); // si el flyover está en curso, se corta
+      // Reanudar el juego con un drag cancela el zoom de la lupita y
+      // devuelve la cámara al control normal del lanzamiento.
+      if (this.enemyZoom) {
+        this.enemyZoom = false;
+        this.camera.setZoom(1);
+      }
       if (this.state !== 'PLAYING' || !this.heldFrog) return;
       this.dragging = true;
       this._updatePull(worldPos);
@@ -804,6 +875,9 @@
       if (this.state === 'PLAYING') {
         // Flyover de cámara sobre los enemigos (se cancela al interactuar)
         this._updatePreview(dt);
+
+        // Zoom de la lupita 🔍 sobre los cangris vivos (si está activo)
+        if (this.enemyZoom) this._updateEnemyZoom();
 
         this.world.advance(dt);
 
