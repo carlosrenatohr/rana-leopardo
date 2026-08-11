@@ -1,5 +1,6 @@
 # Entregables y artefactos locales
 *.zip
+assets/icons/compressed/
 
 # Sistema / editores
 .DS_Store
