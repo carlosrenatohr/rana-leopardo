@@ -237,6 +237,16 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('5 objetos creados', engine.entities.length === 5, engine.entities.map(e => e.entityType).join(','));
   runFrames(20);
 
+  console.log('\n== C0. Toque apresurado durante el flyover inicial ==');
+  check('flyover de cámara activo tras iniciar el nivel', engine.previewT > 0,
+    'previewT=' + engine.previewT);
+  dispatchPointer('pointerdown', 400, 300);
+  dispatchPointer('pointerup', 400, 300);
+  check('toque durante el flyover no lanza la rana (sin misthrow)',
+    engine.previewT === 0 && engine.dragging === false && engine.activeFrog === null,
+    'previewT=' + engine.previewT + ' dragging=' + engine.dragging + ' frog=' + !!engine.activeFrog);
+  runFrames(60); // la cámara vuelve a la resortera antes de apuntar
+
   console.log('\n== C. Arrastrar y lanzar ==');
   dispatchPointer('pointerdown', 400, 300);           // agarra cerca de la rana
   dispatchPointer('pointermove', 10, 590);           // estira hacia abajo-izquierda
@@ -251,7 +261,7 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('velocidad inicial sensible', engine.activeFrog && engine.activeFrog.velocity.length() > 500, v0 + ' px/s');
 
   console.log('\n== C2. Estela de vuelo registrada ==');
-  for (let i = 0; i < 10; i++) runFrames(5);
+  for (let i = 0; i < 4; i++) runFrames(5); // ~0.33 s: la rana sigue en vuelo
   check('estela de vuelo acumula posiciones', engine.trail.length > 3, engine.trail.length + ' pts');
 
   // Foco de cámara en vuelo: la cámara SÍGUE a la rana lanzada y la
@@ -263,6 +273,7 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   for (let i = 0; i < 8 && engine.activeFrog; i++) {
     runFrames(5);
     const f = engine.activeFrog;
+    if (!f) break;
     const vw = engine.camera.visibleW;
     frogScreenX = (f.position.x - engine.camera.x) / vw;
     if (frogScreenX < 0 || frogScreenX > 0.9) frogInView = false;

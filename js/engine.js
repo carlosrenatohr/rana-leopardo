@@ -592,10 +592,14 @@
     /* ================== RESORTERA ================== */
 
     _onDragStart(worldPos) {
-      this._skipPreview(); // si el flyover está en curso, se corta
-      // Un toque durante el zoom de la lupita 🔍 NO lanza la rana: se
-      // cierra el zoom y se devuelve el foco a la resortera para apuntar
-      // con el siguiente gesto (el zoom sirve para ubicar a los cangris).
+      // Un toque apresurado durante el flyover inicial o el zoom de la
+      // lupita 🔍 NO lanza la rana (misthrow): corta la animación de
+      // cámara y deja el foco en la resortera para apuntar con el
+      // siguiente gesto.
+      if (this.previewT > 0) {
+        this._skipPreview();
+        return;
+      }
       if (this.enemyZoom) {
         this._stopEnemyZoom();
         return;
