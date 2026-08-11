@@ -459,33 +459,37 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
   check('recon visible al iniciar nivel', recon.hidden === false);
   check('recon contiene posiciones de enemigos', /[\u{1F980}\u{1F9A5}\u{1F965}]/u.test(engine.ui.reconTrack.innerHTML),
     engine.ui.reconTrack.innerHTML);
-  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
-  await new Promise((r) => setTimeout(r, 400)); // espera el toque único (350 ms)
-  check('botón 🔍 (un toque) oculta el recon', recon.hidden === true);
-  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
-  await new Promise((r) => setTimeout(r, 400));
-  check('botón 🔍 (un toque) re-muestra el recon', recon.hidden === false);
 
-  // Doble toque en la lupita: toggle de ZOOM sobre los cangris (feature
-  // nuevo): activa el zoom y lo desactiva de vuelta.
-  check('zoom de cangris inactivo por defecto', engine.enemyZoom === false);
+  // Doble toque en la lupita: mini-mapa (recon) como toggle.
   document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
   document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
   await new Promise((r) => setTimeout(r, 50));
-  check('doble toque activa el zoom de cangris', engine.enemyZoom === true,
+  check('doble toque oculta el mini-mapa (recon)', recon.hidden === true);
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  await new Promise((r) => setTimeout(r, 50));
+  check('doble toque re-muestra el mini-mapa (recon)', recon.hidden === false);
+
+  // Un toque en la lupita: ZOOM temporal sobre los cangris vivos (feature
+  // actual): encuadra su centro de masa con zoom y vuelve solo a la
+  // resortera a los ~3 s si no se ha hecho un lanzamiento.
+  check('zoom de cangris inactivo por defecto', engine.enemyZoom === false);
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  await new Promise((r) => setTimeout(r, 400)); // espera el toque único (300 ms)
+  check('toque único activa el zoom de cangris', engine.enemyZoom === true,
     'enemyZoom=' + engine.enemyZoom);
+  runFrames(1);
   check('vista de cangris con zoom > 1', engine.camera.targetZoom > 1,
     'zoom=' + engine.camera.targetZoom.toFixed(2));
   runFrames(30);
   check('cámara enfoca el centro de masa de los cangris vivos',
     engine.camera.targetX > engine.levelData.width / 4,
     'targetX=' + engine.camera.targetX.toFixed(0));
-  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
-  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
-  await new Promise((r) => setTimeout(r, 50));
-  check('doble toque desactiva el zoom y vuelve a la resortera',
-    engine.enemyZoom === false && engine.camera.targetZoom === 1,
-    'enemyZoom=' + engine.enemyZoom + ' zoom=' + engine.camera.targetZoom);
+  runFrames(200); // ~3.3 s: se agota el temporizador del zoom
+  check('el zoom vuelve solo a la resortera (~3 s)',
+    engine.enemyZoom === false && engine.camera.targetZoom === 1 && engine.camera.targetX === 0,
+    'enemyZoom=' + engine.enemyZoom + ' zoom=' + engine.camera.targetZoom.toFixed(2) +
+      ' targetX=' + engine.camera.targetX.toFixed(0));
 
   console.log('\n== I.b. Aviso de rotación (solo horizontal) ==');
   const rotateHint = document.getElementById('rotate-hint');

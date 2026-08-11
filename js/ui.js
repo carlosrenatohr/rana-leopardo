@@ -211,9 +211,9 @@
       this.factChip = $('hud-fact');
       $('btn-hud-menu').addEventListener('click', () => this.engine.showMenu());
       $('btn-hud-fact').addEventListener('click', () => this.toggleFact());
-      // Botón 🔍 (lupita): un toque = mini-mapa de cangris; dos toques
-      // seguidos = toggle de zoom sobre los cangris rivales para planear
-      // el siguiente lanzamiento con más precisión.
+      // Botón 🔍 (lupita): un toque = zoom de ~3 s sobre los cangris que
+      // quedan en pie (vuelve solo a la resortera); dos toques seguidos =
+      // mini-mapa de cangris (recon).
       let reconTaps = 0;
       let reconTapTimer = null;
       $('btn-hud-recon').addEventListener('click', () => {
@@ -221,18 +221,19 @@
         clearTimeout(reconTapTimer);
         reconTapTimer = null;
         if (reconTaps >= 2) {
-          // Doble toque: zoom sobre los cangris (toggle)
-          reconTaps = 0;
-          this.engine.toggleEnemyZoom();
-          const reconBtn = $('btn-hud-recon');
-          if (reconBtn) reconBtn.classList.toggle('active', !!this.engine.enemyZoom);
-          return;
-        }
-        // Un toque: mini-mapa de cangris (tras un breve periodo de espera)
-        reconTapTimer = setTimeout(() => {
+          // Doble toque: mini-mapa de cangris
           reconTaps = 0;
           this.toggleRecon();
-        }, 350);
+          return;
+        }
+        // Un toque: zoom temporal sobre los cangris vivos (tras el breve
+        // periodo de espera que distingue el doble toque).
+        reconTapTimer = setTimeout(() => {
+          reconTaps = 0;
+          this.engine.zoomEnemies();
+          const reconBtn = $('btn-hud-recon');
+          if (reconBtn) reconBtn.classList.toggle('active', !!this.engine.enemyZoom);
+        }, 300);
       });
 
       const soundBtn = $('btn-sound');
@@ -363,6 +364,10 @@
       if ($('hud-best')) $('hud-best').textContent = bestScore > 0 ? '🏆 Récord: ' + bestScore : '';
       this._renderStars('hud-stars', stars);
       this._renderFrogs('hud-frogs', frogsLeft);
+      // Estado del botón 🔍: se ilumina mientras dura el zoom de cangris
+      // y se apaga solo al volver la cámara a la resortera.
+      const reconBtn = $('btn-hud-recon');
+      if (reconBtn) reconBtn.classList.toggle('active', !!this.engine.enemyZoom);
     }
 
     /** 3 huecos de estrella: 0 = vacía, 1..3 = rellenas. */

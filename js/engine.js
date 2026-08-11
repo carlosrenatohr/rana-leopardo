@@ -44,7 +44,9 @@
     SETTLE_TIME: 0.35, // segundos en reposo para consumir la rana (reinicio ágil)
     BASE_CLEAR: 500, // puntos por superar el nivel
     FROG_BONUS: 250, // puntos por rana sin usar
-    PREVIEW_TIME: 3.5 // flyover de cámara al iniciar nivel (ver los cangris)
+    PREVIEW_TIME: 3.5, // flyover de cámara al iniciar nivel (ver los cangris)
+    ENEMY_ZOOM_TIME: 3, // duración del zoom de la lupita 🔍 (luego vuelve a la resortera)
+    ENEMY_ZOOM_LEVEL: 1.5 // factor de zoom de la lupita sobre los cangris
   };
 
   class Engine {
@@ -81,7 +83,8 @@
       this._lastTime = performance.now();
       this._hudTimer = 0;
       this.previewT = 0; // temporizador del flyover de cámara (0 = off)
-      this.enemyZoom = false; // zoom de cámara sobre los cangris (lupita 🔍 x2)
+      this.enemyZoom = false; // zoom de cámara sobre los cangris (lupita 🔍)
+      this.enemyZoomT = 0; // temporizador del zoom de la lupita (auto-vuelta)
 
       // Progreso (nivel desbloqueado + estrellas + récords de puntuación)
       this.progress = { unlocked: 1, best: {}, scores: {} };
@@ -213,6 +216,7 @@
     showMenu() {
       this.state = 'MENU';
       this.enemyZoom = false;
+      this.enemyZoomT = 0;
       this.input.setEnabled(false);
       this._buildMenuScene();
       this.camera.setBounds(0, 2400, 0, 720);
@@ -245,6 +249,7 @@
       this.starsEarned = 0;
       this.enemyCount = 0;
       this.enemyZoom = false;
+      this.enemyZoomT = 0;
       this.frogQueue = data.frogs || 1;
       this.activeFrog = null;
       this.heldFrog = null;
@@ -346,56 +351,62 @@
     }
 
     /**
-     * Toggle de la lupita 🔍 (doble toque): acerca la cámara al centro de
-     * masa de los cangris VIVOS para planear el siguiente lanzamiento.
-     * Al desactivar, la cámara vuelve a la resortera (vista inicial).
+     * Zoom temporal de la lupita 🔍 sobre los cangris vivos: encuadra su
+     * centro de masa durante ~ENEMY_ZOOM_TIME s y luego vuelve solo a la
+     * resortera (si no se ha hecho un lanzamiento).
      */
-    toggleEnemyZoom() {
+    zoomEnemies() {
       if (this.state !== 'PLAYING') return;
       this._skipPreview();
-      this.enemyZoom = !this.enemyZoom;
-      if (this.enemyZoom) {
-        const live = this.getLiveEnemies();
-        if (live.length === 0) {
-          this.enemyZoom = false;
-          this.ui.showToast('No quedan cangris a la vista 🎉');
-          return;
-        }
-        // Foco: usa el centro de masa y mantiene el zoom activo; la
-        // actualización por frame sigue a los cangris que quedan (ver
-        // _updateEnemyZoom) y se cancela al reanudar con un drag.
-        this.camera.setZoom(1.5);
-      } else {
-        this.camera.stopFollow();
-        this.camera.setZoom(1);
-        this.camera.targetX = 0;
-        this.camera.targetY = 0;
+      const live = this.getLiveEnemies();
+      if (live.length === 0) {
+        this.ui.showToast('No quedan cangris a la vista 🎉');
+        return;
       }
+      this.enemyZoom = true;
+      this.enemyZoomT = CONFIG.ENEMY_ZOOM_TIME;
       this.audio.play('click');
       this._updateHUDSoon();
     }
 
-    /** Sigue a los cangris vivos mientras el zoom de la lupita está activo. */
-    _updateEnemyZoom() {
+    /** Cancela el zoom de la lupita y vuelve la cámara a la resortera. */
+    _stopEnemyZoom() {
+      this.enemyZoom = false;
+      this.enemyZoomT = 0;
+      this.camera.stopFollow();
+      this.camera.setZoom(1);
+      this.camera.targetX = 0;
+      this.camera.targetY = 0;
+      this._updateHUDSoon();
+    }
+
+    /** Sigue a los cangris vivos mientras dura el zoom de la lupita; al
+     *  agotarse el tiempo (o si no queda ninguno), vuelve a la resortera. */
+    _updateEnemyZoom(dt) {
+      this.enemyZoomT -= dt;
+      if (this.enemyZoomT <= 0) {
+        this._stopEnemyZoom();
+        return;
+      }
       const live = this.getLiveEnemies();
       if (live.length === 0) {
-        this.enemyZoom = false;
-        this.camera.setZoom(1);
-        this.camera.targetX = 0;
-        this.camera.targetY = 0;
+        this._stopEnemyZoom();
         return;
       }
       let cx = 0;
-      for (const e of live) cx += e.position.x;
+      let cy = 0;
+      for (const e of live) {
+        cx += e.position.x;
+        cy += e.position.y;
+      }
       cx /= live.length;
-      const zoom = 1.5;
+      cy /= live.length;
+      const zoom = CONFIG.ENEMY_ZOOM_LEVEL;
       this.camera.stopFollow();
       this.camera.setZoom(zoom);
       // Encuadra el centro de masa de los cangris en el centro del viewport
-      const wantX = cx - this.camera.visibleW / (2 * zoom);
-      const wantY = 480 - this.camera.visibleH / (2 * zoom);
-      this.camera.targetX = wantX;
-      this.camera.targetY = wantY;
+      this.camera.targetX = cx - this.camera.visibleW / (2 * zoom);
+      this.camera.targetY = cy - this.camera.visibleH / (2 * zoom);
     }
 
     /** Avanza el paneo de cámara (se llama cada frame mientras previewT > 0). */
@@ -585,8 +596,7 @@
       // Reanudar el juego con un drag cancela el zoom de la lupita y
       // devuelve la cámara al control normal del lanzamiento.
       if (this.enemyZoom) {
-        this.enemyZoom = false;
-        this.camera.setZoom(1);
+        this._stopEnemyZoom();
       }
       if (this.state !== 'PLAYING' || !this.heldFrog) return;
       this.dragging = true;
@@ -877,7 +887,7 @@
         this._updatePreview(dt);
 
         // Zoom de la lupita 🔍 sobre los cangris vivos (si está activo)
-        if (this.enemyZoom) this._updateEnemyZoom();
+        if (this.enemyZoom) this._updateEnemyZoom(dt);
 
         this.world.advance(dt);
 
