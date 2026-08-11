@@ -593,10 +593,12 @@
 
     _onDragStart(worldPos) {
       this._skipPreview(); // si el flyover está en curso, se corta
-      // Reanudar el juego con un drag cancela el zoom de la lupita y
-      // devuelve la cámara al control normal del lanzamiento.
+      // Un toque durante el zoom de la lupita 🔍 NO lanza la rana: se
+      // cierra el zoom y se devuelve el foco a la resortera para apuntar
+      // con el siguiente gesto (el zoom sirve para ubicar a los cangris).
       if (this.enemyZoom) {
         this._stopEnemyZoom();
+        return;
       }
       if (this.state !== 'PLAYING' || !this.heldFrog) return;
       this.dragging = true;

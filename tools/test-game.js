@@ -491,6 +491,21 @@ check('sin NaN tras 30 frames de menú', allFinite().length === 0, allFinite().j
     'enemyZoom=' + engine.enemyZoom + ' zoom=' + engine.camera.targetZoom.toFixed(2) +
       ' targetX=' + engine.camera.targetX.toFixed(0));
 
+  // Un toque durante el zoom NO lanza la rana: cierra el zoom y devuelve
+  // el foco a la resortera para apuntar con el siguiente gesto.
+  document.getElementById('btn-hud-recon').dispatchEvent({ type: 'click' });
+  await new Promise((r) => setTimeout(r, 400)); // espera el toque único (300 ms)
+  check('zoom reactivado para la prueba', engine.enemyZoom === true);
+  dispatchPointer('pointerdown', 640, 360);
+  dispatchPointer('pointerup', 640, 360);
+  check('toque durante el zoom cierra el zoom sin lanzar la rana',
+    engine.enemyZoom === false && engine.dragging === false && !engine.activeFrog,
+    'enemyZoom=' + engine.enemyZoom + ' dragging=' + engine.dragging +
+      ' activeFrog=' + !!engine.activeFrog);
+  check('cámara de vuelta centrada en la resortera',
+    engine.camera.targetX === 0 && engine.camera.targetZoom === 1,
+    'targetX=' + engine.camera.targetX + ' zoom=' + engine.camera.targetZoom);
+
   console.log('\n== I.b. Aviso de rotación (solo horizontal) ==');
   const rotateHint = document.getElementById('rotate-hint');
   // El stub reporta 1280x720 (horizontal) → la sugerencia debe verse
